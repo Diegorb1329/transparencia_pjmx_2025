@@ -201,14 +201,38 @@ export default function ResultadosPage() {
     
     let filtered = [...results.matchedCandidates];
     
-    // Filtrar por tipo de candidatura
+    // Definir qué tipos de candidatura son federales (no dependen del estado)
+    const federalCandidaturas = [
+      "Magistraturas de Tribunales Colegiados de Circuito",
+      "Magistratura Sala Superior del TE del PJF",
+      "Magistratura Salas Regionales del TE del PJF",
+      "Magistratura Tribunal de Disciplina Judicial",
+      "Ministra/o Suprema Corte de Justicia de la Nación"
+    ];
+    
+    // Dividir candidatos entre federales y locales
+    const federalCandidates = filtered.filter(c => 
+      federalCandidaturas.includes(c.nombreCorto)
+    );
+    
+    let localCandidates = filtered.filter(c => 
+      !federalCandidaturas.includes(c.nombreCorto)
+    );
+    
+    // Filtrar por tipo de candidatura si está especificado
     if (filters.candidatura) {
-      filtered = filtered.filter(c => c.nombreCorto === filters.candidatura);
+      if (federalCandidaturas.includes(filters.candidatura)) {
+        // Si es candidatura federal, solo mostrar esas
+        filtered = federalCandidates.filter(c => c.nombreCorto === filters.candidatura);
+      } else {
+        // Si es candidatura local, filtrar en los locales
+        localCandidates = localCandidates.filter(c => c.nombreCorto === filters.candidatura);
+      }
     }
     
-    // Filtrar por estado (obligatorio)
+    // Filtrar candidatos locales por estado
     if (filters.estado) {
-      filtered = filtered.filter(c => c.nombreEstado === filters.estado);
+      localCandidates = localCandidates.filter(c => c.nombreEstado === filters.estado);
       
       // Actualizar opciones de distritos basados en el estado seleccionado
       const estadoDistritos = distritosMap[filters.estado] || [];
@@ -239,13 +263,21 @@ export default function ResultadosPage() {
         }));
       }
       
-      // No mostrar candidatos si no hay estado seleccionado
-      filtered = [];
+      // Si no hay estado seleccionado, solo mostrar candidatos federales
+      localCandidates = [];
     }
     
-    // Filtrar por distrito
+    // Filtrar por distrito para candidatos locales
     if (filters.distrito) {
-      filtered = filtered.filter(c => c.idDistritoJudicial === parseInt(filters.distrito));
+      localCandidates = localCandidates.filter(c => c.idDistritoJudicial === parseInt(filters.distrito));
+    }
+    
+    // Combinar candidatos federales y locales para el resultado final
+    filtered = [...federalCandidates, ...localCandidates];
+    
+    // Si hay un filtro de tipo de candidatura aplicado, filtrar el resultado combinado
+    if (filters.candidatura) {
+      filtered = filtered.filter(c => c.nombreCorto === filters.candidatura);
     }
     
     setFilteredCandidates(filtered);
@@ -512,11 +544,34 @@ export default function ResultadosPage() {
                 className="block w-full p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Todas las candidaturas</option>
-                {filterOptions.candidaturas.map((candidatura) => (
-                  <option key={candidatura} value={candidatura}>
-                    {candidatura}
-                  </option>
-                ))}
+                {/* Primero mostrar opciones locales */}
+                <optgroup label="Candidaturas Locales (requieren estado)">
+                  {filterOptions.candidaturas
+                    .filter(c => ![
+                                  "Magistratura Sala Superior del TE del PJF",
+                                  "Magistratura Salas Regionales del TE del PJF",
+                                  "Magistratura Tribunal de Disciplina Judicial",
+                                  "Ministra/o Suprema Corte de Justicia de la Nación"].includes(c))
+                    .map((candidatura) => (
+                      <option key={candidatura} value={candidatura}>
+                        {candidatura}
+                      </option>
+                    ))}
+                </optgroup>
+                {/* Luego mostrar opciones federales */}
+                <optgroup label="Candidaturas Federales (en todo el país)">
+                  {filterOptions.candidaturas
+                    .filter(c => [
+                                 "Magistratura Sala Superior del TE del PJF",
+                                 "Magistratura Salas Regionales del TE del PJF",
+                                 "Magistratura Tribunal de Disciplina Judicial",
+                                 "Ministra/o Suprema Corte de Justicia de la Nación"].includes(c))
+                    .map((candidatura) => (
+                      <option key={candidatura} value={candidatura}>
+                        {candidatura}
+                      </option>
+                    ))}
+                </optgroup>
               </select>
             </div>
             
@@ -579,9 +634,23 @@ export default function ResultadosPage() {
                   {filters.candidatura ? ` de tipo ${filters.candidatura}` : ''}
                   {` en ${filters.estado}`}
                   {filters.distrito ? ` (Distrito ${filters.distrito})` : ''}
+                  {!filters.candidatura && filteredCandidates.length > 0 && (
+                    <span className="text-blue-400 ml-1">
+                      (incluye candidaturas federales)
+                    </span>
+                  )}
                 </>
               ) : (
-                <>Selecciona un estado para ver candidatos</>
+                <>
+                  {filteredCandidates.length > 0 ? (
+                    <>
+                      Mostrando {filteredCandidates.length} candidato{filteredCandidates.length !== 1 ? 's' : ''} federales
+                      {filters.candidatura ? ` de tipo ${filters.candidatura}` : ''}
+                    </>
+                  ) : (
+                    <>Selecciona un estado para ver candidatos locales. Las candidaturas federales se muestran automáticamente.</>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -665,11 +734,18 @@ export default function ResultadosPage() {
           {!filters.estado ? (
             <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-800/40 text-center my-8">
               <p className="text-gray-300 mb-4">
-                Para ver candidatos, primero selecciona un estado en los filtros superiores.
+                Para ver candidaturas locales (Juezas/es de Distrito), selecciona un estado en los filtros superiores.
               </p>
               <p className="text-sm text-gray-400">
-                El proceso electoral se realiza a nivel estatal, por lo que es necesario seleccionar un estado para mostrar los candidatos relevantes.
+                Las candidaturas federales (Magistraturas y Ministros) se muestran automáticamente sin necesidad de seleccionar estado, ya que aplican a todo el país.
               </p>
+              {filteredCandidates.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-900/50 rounded-md inline-block">
+                  <p className="text-blue-200">
+                    Mostrando {filteredCandidates.length} candidatura{filteredCandidates.length !== 1 ? 's' : ''} federal{filteredCandidates.length !== 1 ? 'es' : ''}
+                  </p>
+                </div>
+              )}
             </div>
           ) : filteredCandidates.length === 0 ? (
             <div className="bg-amber-900/30 p-6 rounded-lg border border-amber-800/40 text-center my-8">
