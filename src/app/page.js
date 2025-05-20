@@ -25,10 +25,10 @@ export default function Home() {
         {/* Main Title */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-            PJMx Compass
+            TransparencIA X PJMx
           </h1>
           <h2 className="text-3xl md:text-5xl font-bold text-gray-400 mb-8 tracking-tight">
-            Encuentra AI Con Tus Valores
+            Encuentra candidatos con tus balores
           </h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Responde una serie de preguntas políticas para encontrar candidatos judiciales 
