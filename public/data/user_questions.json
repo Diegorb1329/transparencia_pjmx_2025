@@ -1,0 +1,189 @@
+[
+  {
+    "id": 1,
+    "dimension": "CT",
+    "type": "single",
+    "text": "¿Prefieres jueces con experiencia internacional frente a jueces cuya experiencia es exclusivamente nacional?",
+    "options": [
+      {"text": "Prefiero exclusivamente experiencia nacional", "affinity": "CT"},
+      {"text": "Prefiero principalmente experiencia nacional", "affinity": "CT"},
+      {"text": "No tengo preferencia", "affinity": null},
+      {"text": "Prefiero principalmente experiencia internacional", "affinity": "CT"},
+      {"text": "Prefiero exclusivamente experiencia internacional", "affinity": "CT"}
+    ]
+  },
+  {
+    "id": 2,
+    "dimension": "IE",
+    "type": "single",
+    "text": "¿Qué tan importante es para ti que un juez mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?",
+    "options": [
+      {"text": "Nada importante", "affinity": "IE"},
+      {"text": "Poco importante", "affinity": "IE"},
+      {"text": "Neutral", "affinity": "IE"},
+      {"text": "Importante", "affinity": "IE"},
+      {"text": "Indispensable", "affinity": "IE"}
+    ]
+  },
+  {
+    "id": 3,
+    "dimension": "EJ",
+    "type": "single",
+    "text": "¿Prefieres jueces que apliquen la ley de manera estricta o que interpreten la ley considerando el contexto social?",
+    "options": [
+      {"text": "Solo aplicación estricta de la ley", "affinity": "EJ"},
+      {"text": "Más aplicación estricta que interpretación", "affinity": "EJ"},
+      {"text": "Equilibrio entre ambos", "affinity": "EJ"},
+      {"text": "Más interpretación que aplicación estricta", "affinity": "EJ"},
+      {"text": "Solo interpretación considerando el contexto", "affinity": "EJ"}
+    ]
+  },
+  {
+    "id": 4,
+    "dimension": "CR",
+    "type": "single",
+    "text": "¿Qué tan relevante es la rapidez en la resolución de casos frente al riesgo de perder calidad en las sentencias?",
+    "options": [
+      {"text": "Prefiero máxima rapidez, aunque se pierda algo de calidad", "affinity": "CR"},
+      {"text": "Prefiero rapidez, pero con calidad aceptable", "affinity": "CR"},
+      {"text": "Equilibrio entre rapidez y calidad", "affinity": "CR"},
+      {"text": "Prefiero calidad, aunque tome más tiempo", "affinity": "CR"},
+      {"text": "Prefiero máxima calidad, aunque los casos tarden mucho", "affinity": "CR"}
+    ]
+  },
+  {
+    "id": 5,
+    "dimension": "SS",
+    "type": "single",
+    "text": "¿Qué tan importante es para ti que un juez tenga experiencia en causas sociales (por ejemplo, derechos humanos, igualdad de género, inclusión)?",
+    "options": [
+      {"text": "Nada importante", "affinity": "SS"},
+      {"text": "Poco importante", "affinity": "SS"},
+      {"text": "Neutral", "affinity": "SS"},
+      {"text": "Importante", "affinity": "SS"},
+      {"text": "Indispensable", "affinity": "SS"}
+    ]
+  },
+  {
+    "id": 6,
+    "dimension": "TRADEOFF",
+    "type": "single",
+    "text": "¿Qué prefieres sacrificar en un juez?",
+    "options": [
+      {"text": "Que sea menos sensible a causas sociales, pero muy eficiente", "affinity": "CR"},
+      {"text": "Que sea menos eficiente, pero muy sensible a causas sociales", "affinity": "SS"}
+    ]
+  },
+  {
+    "id": 7,
+    "dimension": "RANKING",
+    "type": "ranking",
+    "text": "Ordena por importancia las dimensiones en las que debería enfocarse un juez",
+    "options": [
+      {"text": "Competencia técnica", "affinity": "CT"},
+      {"text": "Independencia y ética", "affinity": "IE"},
+      {"text": "Enfoque jurídico", "affinity": "EJ"},
+      {"text": "Capacidad resolutiva", "affinity": "CR"},
+      {"text": "Sensibilidad social", "affinity": "SS"}
+    ]
+  },
+  {
+    "id": 8,
+    "dimension": "FILTRO",
+    "type": "single",
+    "text": "¿Cuál de las siguientes dimensiones te parece menos relevante en un juez?",
+    "options": [
+      {"text": "Competencia técnica", "affinity": "CT"},
+      {"text": "Independencia y ética", "affinity": "IE"},
+      {"text": "Enfoque jurídico", "affinity": "EJ"},
+      {"text": "Capacidad resolutiva", "affinity": "CR"},
+      {"text": "Sensibilidad social", "affinity": "SS"}
+    ]
+  },
+  {
+    "id": 9,
+    "dimension": "CR",
+    "type": "single",
+    "text": "¿Qué aspecto de la eficiencia judicial consideras más importante?",
+    "options": [
+      {"text": "Rapidez en la resolución de casos", "affinity": "CR"},
+      {"text": "Calidad y solidez de las sentencias", "affinity": "CR"},
+      {"text": "Accesibilidad y claridad del lenguaje jurídico", "affinity": "CR"},
+      {"text": "Innovación en procedimientos judiciales", "affinity": "CR"}
+    ]
+  },
+  {
+    "id": 10,
+    "dimension": "SS",
+    "type": "single",
+    "text": "¿En qué temas consideras más importante la especialización de un juez?",
+    "options": [
+      {"text": "Derechos humanos y protección de grupos vulnerables", "affinity": "SS"},
+      {"text": "Combate a la corrupción y delitos de cuello blanco", "affinity": "IE"},
+      {"text": "Seguridad pública y combate al crimen organizado", "affinity": "CR"},
+      {"text": "Derecho constitucional y protección de garantías", "affinity": "EJ"}
+    ]
+  },
+  {
+    "id": 11,
+    "dimension": "SS",
+    "type": "single",
+    "text": "¿Qué tipo de causas sociales te gustaría que el juez apoye activamente?",
+    "options": [
+      {"text": "Igualdad de género", "affinity": "SS"},
+      {"text": "Inclusión de personas con discapacidad", "affinity": "SS"},
+      {"text": "Protección ambiental", "affinity": "SS"},
+      {"text": "Combate a la corrupción", "affinity": "IE"},
+      {"text": "No tengo preferencia", "affinity": null}
+    ]
+  },
+  {
+    "id": 12,
+    "dimension": "CR",
+    "type": "single",
+    "text": "¿Qué habilidad consideras más importante para resolver casos complejos?",
+    "options": [
+      {"text": "Capacidad de mediación", "affinity": "CR"},
+      {"text": "Análisis jurídico profundo", "affinity": "CT"},
+      {"text": "Empatía con las partes involucradas", "affinity": "SS"},
+      {"text": "Rigurosidad en la aplicación de la ley", "affinity": "CR"},
+      {"text": "Creatividad en la interpretación jurídica", "affinity": "EJ"}
+    ]
+  },
+  {
+    "id": 13,
+    "dimension": "EJ",
+    "type": "single",
+    "text": "¿Qué tan importante es para ti que el juez se adapte a cambios sociales y tecnológicos?",
+    "options": [
+      {"text": "Es fundamental para la justicia moderna", "affinity": "EJ"},
+      {"text": "Es importante pero no indispensable", "affinity": "EJ"},
+      {"text": "Prefiero jueces tradicionales y conservadores", "affinity": "CR"},
+      {"text": "No tengo preferencia", "affinity": null},
+      {"text": "Depende del contexto", "affinity": "EJ"}
+    ]
+  },
+  {
+    "id": 14,
+    "dimension": "SACRIFICIO",
+    "type": "single",
+    "text": "Si tuvieras que sacrificar una de estas cualidades en un juez, ¿cuál sería la menos importante para ti?",
+    "options": [
+      {"text": "Competencia técnica", "affinity": "CT"},
+      {"text": "Independencia y ética", "affinity": "IE"},
+      {"text": "Enfoque jurídico", "affinity": "EJ"},
+      {"text": "Capacidad resolutiva", "affinity": "CR"},
+      {"text": "Sensibilidad social", "affinity": "SS"}
+    ]
+  },
+  {
+    "id": 15,
+    "dimension": "SACRIFICIO2",
+    "type": "single",
+    "text": "¿Cuál de estas dos cualidades preferirías sacrificar en un juez si tuvieras que elegir?",
+    "options": [
+      {"text": "Sacrificaría la independencia y ética para ganar en competencia técnica", "affinity": "IE"},
+      {"text": "Sacrificaría la competencia técnica para ganar en independencia y ética", "affinity": "CT"}
+    ]
+  }
+] 
