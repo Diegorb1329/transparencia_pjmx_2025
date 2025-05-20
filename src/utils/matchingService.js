@@ -17,13 +17,14 @@ export const processUserAnswersAndFindMatches = async (
 ) => {
   try {
     // Calcular vector de afinidad del usuario
-    const userVector = calculateUserScores(userAnswers, questions);
+    const userScores = calculateUserScores(userAnswers, questions);
     
-    // Encontrar candidatos similares
-    const matchedCandidates = findSimilarCandidates(userVector, candidates, limit);
+    // Encontrar candidatos similares usando el vector normalizado
+    const matchedCandidates = findSimilarCandidates(userScores.normalizedVector, candidates, limit);
     
     return {
-      userVector,
+      userVector: userScores.normalizedVector,
+      userRelativePercentages: userScores.relativePercentages,
       matchedCandidates
     };
   } catch (error) {

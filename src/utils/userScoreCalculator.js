@@ -54,8 +54,19 @@ export const calculateUserScores = (userAnswers, questions) => {
     }
   });
   
+  // Normalizar a valores positivos primero
+  const normalizedPositive = normalizePositive(scores);
+  
   // Normalizar a vector unitario
-  return normalizeVector(scores);
+  const normalizedUnitVector = normalizeVector(normalizedPositive);
+  
+  // Calcular porcentajes relativos
+  const relativePercentages = calculateRelativePercentages(normalizedUnitVector);
+  
+  return {
+    normalizedVector: normalizedUnitVector,
+    relativePercentages: relativePercentages
+  };
 };
 
 /**
@@ -127,6 +138,51 @@ const getScoreFromOption = (options, selectedOption) => {
   // Para otras cantidades: distribuir equitativamente
   if (totalOptions <= 1) return 50;
   return (index / (totalOptions - 1)) * 100;
+};
+
+/**
+ * Normaliza los scores para que todos sean positivos
+ */
+const normalizePositive = (scoreObj) => {
+  const dimensions = Object.keys(scoreObj);
+  const minScore = Math.min(...dimensions.map(dim => scoreObj[dim]));
+  
+  // Si hay valores negativos, ajustar todos sumando el valor absoluto del mínimo
+  if (minScore < 0) {
+    const adjusted = {};
+    dimensions.forEach(dim => {
+      adjusted[dim] = scoreObj[dim] + Math.abs(minScore);
+    });
+    return adjusted;
+  }
+  
+  return { ...scoreObj };
+};
+
+/**
+ * Calcula porcentajes relativos para que la suma sea 100%
+ */
+export const calculateRelativePercentages = (scoreObj) => {
+  const dimensions = Object.keys(scoreObj);
+  const total = dimensions.reduce((sum, dim) => sum + Math.max(0, scoreObj[dim]), 0);
+  
+  if (total === 0) {
+    // Evitar división por cero
+    return dimensions.reduce((result, dim) => {
+      result[dim] = 20; // Distribución equitativa (5 dimensiones = 20% cada una)
+      return result;
+    }, {});
+  }
+  
+  // Calcular el porcentaje relativo de cada dimensión
+  const percentages = {};
+  dimensions.forEach(dim => {
+    // Asegurar que solo se consideren valores positivos para los porcentajes
+    const score = Math.max(0, scoreObj[dim]);
+    percentages[dim] = (score / total) * 100;
+  });
+  
+  return percentages;
 };
 
 /**

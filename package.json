@@ -11,9 +11,13 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "chart.js": "^4.4.9",
     "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
