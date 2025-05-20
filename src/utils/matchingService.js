@@ -1,5 +1,6 @@
 import { calculateUserScores } from './userScoreCalculator';
 import { findSimilarCandidates } from './similarityCalculator';
+import { saveUserAnswers, saveUserMatchResults, logAnalyticsEvent } from '../supabase/userDataService';
 
 /**
  * Procesa las respuestas del usuario y encuentra candidatos similares
@@ -22,11 +23,30 @@ export const processUserAnswersAndFindMatches = async (
     // Encontrar candidatos similares usando el vector normalizado
     const matchedCandidates = findSimilarCandidates(userScores.normalizedVector, candidates, limit);
     
-    return {
+    const results = {
       userVector: userScores.normalizedVector,
       userRelativePercentages: userScores.relativePercentages,
       matchedCandidates
     };
+    
+    // Guardar datos en Supabase (de forma asíncrona, sin bloquear)
+    Promise.all([
+      saveUserAnswers(userAnswers),
+      saveUserMatchResults(results),
+      logAnalyticsEvent('results_generated', { 
+        matchCount: matchedCandidates.length,
+        topMatch: matchedCandidates.length > 0 ? 
+          { 
+            similarity: matchedCandidates[0].similarity,
+            candidateType: matchedCandidates[0].nombreCorto 
+          } : null
+      })
+    ]).catch(error => {
+      // Solo registrar el error, no interrumpir el flujo
+      console.error('Error al guardar datos en Supabase:', error);
+    });
+    
+    return results;
   } catch (error) {
     console.error('Error al procesar respuestas y encontrar matches:', error);
     throw error;
@@ -46,6 +66,12 @@ export const loadMatchingData = async () => {
     // Cargar candidatos
     const candidatesResponse = await fetch('/data/candidates_scored_full_2.json');
     const candidates = await candidatesResponse.json();
+    
+    // Registrar evento de carga de datos (sin esperar)
+    logAnalyticsEvent('data_loaded', { 
+      questionsCount: questions.length, 
+      candidatesCount: candidates.length 
+    }).catch(console.error);
     
     return { questions, candidates };
   } catch (error) {

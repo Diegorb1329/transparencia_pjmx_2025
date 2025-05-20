@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { logAnalyticsEvent } from '../supabase/userDataService';
 
 // Crear el contexto
 const QuestionnaireContext = createContext();
@@ -76,6 +77,9 @@ export const QuestionnaireProvider = ({ children }) => {
       ans => ans.questionId === questionId
     );
     
+    // Valor para trackear si es una nueva respuesta o una modificación
+    const isNewAnswer = existingAnswerIndex === -1;
+    
     if (existingAnswerIndex !== -1) {
       // Actualizar respuesta existente
       const updatedAnswers = [...userAnswers];
@@ -113,19 +117,42 @@ export const QuestionnaireProvider = ({ children }) => {
         ]);
       }
     }
+    
+    // Registrar evento de respuesta (sin esperar la resolución)
+    const question = questions.find(q => q.id === questionId);
+    logAnalyticsEvent('question_answered', { 
+      questionId, 
+      questionType: question?.type || 'unknown',
+      isNewAnswer,
+      questionNumber: currentStep
+    }).catch(console.error);
   };
   
   // Función para avanzar al siguiente paso
   const nextStep = () => {
     if (currentStep < questions.length) {
-      setCurrentStep(currentStep + 1);
+      const newStep = currentStep + 1;
+      setCurrentStep(newStep);
+      
+      // Registrar evento de navegación
+      logAnalyticsEvent('navigate_next', { 
+        fromStep: currentStep, 
+        toStep: newStep
+      }).catch(console.error);
     }
   };
   
   // Función para retroceder al paso anterior
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      const newStep = currentStep - 1;
+      setCurrentStep(newStep);
+      
+      // Registrar evento de navegación
+      logAnalyticsEvent('navigate_prev', { 
+        fromStep: currentStep, 
+        toStep: newStep
+      }).catch(console.error);
     }
   };
   
@@ -149,6 +176,9 @@ export const QuestionnaireProvider = ({ children }) => {
     setCurrentStep(1);
     localStorage.removeItem('pjmx2025_answers');
     localStorage.removeItem('pjmx2025_currentStep');
+    
+    // Registrar evento de reinicio
+    logAnalyticsEvent('questionnaire_reset').catch(console.error);
   };
   
   // Valores a exponer en el contexto
