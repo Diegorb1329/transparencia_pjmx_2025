@@ -8,6 +8,7 @@ import { processUserAnswersAndFindMatches, loadMatchingData } from '../../utils/
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
 import Slider from 'react-slick';
+import Link from 'next/link';
 
 // Importar estilos para el carrusel
 import 'slick-carousel/slick/slick.css';
@@ -16,12 +17,48 @@ import 'slick-carousel/slick/slick-theme.css';
 // Registrar componentes de Chart.js
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
+// Componentes para flechas personalizadas
+const PrevArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={`${className} bg-gray-800 rounded-full p-2 absolute left-0 z-10 -ml-5 cursor-pointer flex items-center justify-center`}
+      style={{ ...style, display: 'flex', top: '50%', transform: 'translateY(-50%)', width: '40px', height: '40px' }}
+      onClick={onClick}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </div>
+  );
+};
+
+const NextArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={`${className} bg-gray-800 rounded-full p-2 absolute right-0 z-10 -mr-5 cursor-pointer flex items-center justify-center`}
+      style={{ ...style, display: 'flex', top: '50%', transform: 'translateY(-50%)', width: '40px', height: '40px' }}
+      onClick={onClick}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </div>
+  );
+};
+
 export default function ResultadosPage() {
   const router = useRouter();
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalCandidates, setTotalCandidates] = useState(0);
+  // Estado para candidatos seleccionados para comparar en el radar (múltiples)
+  const [selectedCandidates, setSelectedCandidates] = useState({});
+  // Estado para el modal de detalles del candidato
+  const [detailCandidate, setDetailCandidate] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   
   // Filtros
   const [filters, setFilters] = useState({
@@ -37,6 +74,9 @@ export default function ResultadosPage() {
     distritos: []
   });
   
+  // Lista completa de distritos por estado
+  const [distritosMap, setDistritosMap] = useState({});
+  
   // Candidatos filtrados
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   // Estado para rastrear qué imágenes han fallado
@@ -44,21 +84,22 @@ export default function ResultadosPage() {
 
   // Configuración del carrusel
   const sliderSettings = {
-    dots: true,
+    dots: false, // Quitar los puntos de navegación para evitar que se llene la página
     infinite: false,
     speed: 500,
-    slidesToShow: 4, // Mostrar 4 tarjetas en lugar de 2
-    slidesToScroll: 1,
-    arrows: true,
+    slidesToShow: 4,
+    slidesToScroll: 2, // Deslizar 2 a la vez para navegar más rápido
+    prevArrow: <PrevArrow />, // Flecha personalizada para navegación previa
+    nextArrow: <NextArrow />, // Flecha personalizada para navegación siguiente
     swipeToSlide: true,
-    touchThreshold: 10,
-    adaptiveHeight: true,
+    touchThreshold: 5, // Hacer más sensible el deslizamiento números más bajos para que se deslice más rápido
+    adaptiveHeight: false, // Mantener altura consistente
     responsive: [
       {
         breakpoint: 1280,
         settings: {
           slidesToShow: 3,
-          slidesToScroll: 1,
+          slidesToScroll: 2,
         }
       },
       {
@@ -72,7 +113,8 @@ export default function ResultadosPage() {
         breakpoint: 640,
         settings: {
           slidesToShow: 1,
-          slidesToScroll: 1
+          slidesToScroll: 1,
+          dots: true, // Habilitar puntos solo en móvil
         }
       }
     ]
@@ -109,17 +151,37 @@ export default function ResultadosPage() {
         );
         
         setResults(matchResults);
-        setFilteredCandidates(matchResults.matchedCandidates);
         
         // Extraer opciones para filtros
         const candidaturas = [...new Set(candidates.map(c => c.nombreCorto))];
         const estados = [...new Set(candidates.map(c => c.nombreEstado))];
-        const distritos = [...new Set(candidates.map(c => c.idDistritoJudicial))];
+        
+        // Crear un mapa de distritos por estado
+        const distritosEstadoMap = {};
+        candidates.forEach(candidate => {
+          const estado = candidate.nombreEstado;
+          const distrito = candidate.idDistritoJudicial;
+          
+          if (!distrito) return; // Ignorar candidatos sin distrito
+          
+          if (!distritosEstadoMap[estado]) {
+            distritosEstadoMap[estado] = new Set();
+          }
+          distritosEstadoMap[estado].add(distrito);
+        });
+        
+        // Convertir Sets a arrays ordenados
+        const processedDistritosMap = {};
+        Object.keys(distritosEstadoMap).forEach(estado => {
+          processedDistritosMap[estado] = [...distritosEstadoMap[estado]].sort((a, b) => a - b);
+        });
+        
+        setDistritosMap(processedDistritosMap);
         
         setFilterOptions({
           candidaturas,
           estados,
-          distritos: distritos.filter(d => d).sort((a, b) => a - b)
+          distritos: [] // Inicialmente vacío, se llenará al seleccionar estado
         });
         
         setLoading(false);
@@ -144,9 +206,41 @@ export default function ResultadosPage() {
       filtered = filtered.filter(c => c.nombreCorto === filters.candidatura);
     }
     
-    // Filtrar por estado
+    // Filtrar por estado (obligatorio)
     if (filters.estado) {
       filtered = filtered.filter(c => c.nombreEstado === filters.estado);
+      
+      // Actualizar opciones de distritos basados en el estado seleccionado
+      const estadoDistritos = distritosMap[filters.estado] || [];
+      setFilterOptions(prev => ({
+        ...prev,
+        distritos: estadoDistritos
+      }));
+      
+      // Limpiar distrito si no está en el nuevo estado
+      if (filters.distrito && !estadoDistritos.includes(parseInt(filters.distrito))) {
+        setFilters(prev => ({
+          ...prev,
+          distrito: ''
+        }));
+      }
+    } else {
+      // Si no hay estado seleccionado, limpiar los distritos
+      setFilterOptions(prev => ({
+        ...prev,
+        distritos: []
+      }));
+      
+      // Limpiar el distrito seleccionado
+      if (filters.distrito) {
+        setFilters(prev => ({
+          ...prev,
+          distrito: ''
+        }));
+      }
+      
+      // No mostrar candidatos si no hay estado seleccionado
+      filtered = [];
     }
     
     // Filtrar por distrito
@@ -155,7 +249,7 @@ export default function ResultadosPage() {
     }
     
     setFilteredCandidates(filtered);
-  }, [filters, results]);
+  }, [filters, results, distritosMap]);
 
   // Manejar cambios en los filtros
   const handleFilterChange = (e) => {
@@ -190,23 +284,55 @@ export default function ResultadosPage() {
   const prepareRadarData = () => {
     if (!results) return null;
     
+    // Crear el dataset del usuario
+    const datasets = [
+      {
+        label: 'Tu perfil',
+        data: [
+          results.userVector.CT,
+          results.userVector.IE,
+          results.userVector.EJ,
+          results.userVector.CR,
+          results.userVector.SS
+        ],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+      }
+    ];
+    
+    // Añadir datasets para todos los candidatos seleccionados
+    const colorPalette = [
+      ['rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)'],  // Rojo
+      ['rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)'],  // Verde
+      ['rgba(255, 159, 64, 0.2)', 'rgba(255, 159, 64, 1)'],  // Naranja
+      ['rgba(153, 102, 255, 0.2)', 'rgba(153, 102, 255, 1)'], // Púrpura
+      ['rgba(255, 205, 86, 0.2)', 'rgba(255, 205, 86, 1)']   // Amarillo
+    ];
+    
+    // Convertir el objeto de candidatos seleccionados en un array
+    const selectedCandidatesArray = Object.values(selectedCandidates);
+    
+    selectedCandidatesArray.forEach((candidate, index) => {
+      const colorIndex = index % colorPalette.length;
+      datasets.push({
+        label: candidate.nombre,
+        data: [
+          candidate.CT_score / 100, // Normalizar a escala 0-1
+          candidate.IE_score / 100,
+          candidate.EJ_score / 100,
+          candidate.CR_score / 100,
+          candidate.SS_score / 100
+        ],
+        backgroundColor: colorPalette[colorIndex][0],
+        borderColor: colorPalette[colorIndex][1],
+        borderWidth: 2,
+      });
+    });
+    
     return {
-      labels: ['Competencia Técnica (CT)', 'Independencia (IE)', 'Experiencia Jurídica (EJ)', 'Conservación (CR)', 'Sensibilidad Social (SS)'],
-      datasets: [
-        {
-          label: 'Tu perfil',
-          data: [
-            results.userVector.CT * 100,
-            results.userVector.IE * 100,
-            results.userVector.EJ * 100,
-            results.userVector.CR * 100,
-            results.userVector.SS * 100
-          ],
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-        }
-      ]
+      labels: ['Competencia Técnica (CT)', 'Independencia (IE)', 'Experiencia Jurídica (EJ)', 'Capacidad Resolutiva (CR)', 'Sensibilidad Social (SS)'],
+      datasets
     };
   };
 
@@ -218,9 +344,12 @@ export default function ResultadosPage() {
           display: true
         },
         suggestedMin: 0,
-        suggestedMax: 100,
+        suggestedMax: 1,
         ticks: {
           color: 'rgba(255, 255, 255, 0.7)',
+          callback: function(value) {
+            return (value * 100) + '%';  // Mostrar como porcentaje
+          }
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.2)',
@@ -232,14 +361,63 @@ export default function ResultadosPage() {
     },
     plugins: {
       legend: {
+        position: 'right', // Posicionar la leyenda a la derecha
         labels: {
           color: 'rgba(255, 255, 255, 0.8)',
           font: {
             weight: 'bold'
-          }
+          },
+          boxWidth: 15 // Reducir el tamaño de los cuadros de color en la leyenda
         }
       }
+    },
+    maintainAspectRatio: false
+  };
+  
+  // Función para seleccionar un candidato para comparar en el radar
+  const handleSelectCandidateForRadar = (candidate) => {
+    setSelectedCandidates(prev => {
+      // Si el candidato ya está seleccionado, quitarlo
+      if (prev[candidate.folio]) {
+        const newSelected = {...prev};
+        delete newSelected[candidate.folio];
+        return newSelected;
+      } 
+      // Si no está seleccionado, añadirlo (máximo 5 candidatos)
+      else {
+        // Limitar a 5 candidatos para evitar sobrecarga visual
+        if (Object.keys(prev).length >= 5) {
+          alert('Máximo 5 candidatos pueden ser comparados a la vez');
+          return prev;
+        }
+        return {
+          ...prev,
+          [candidate.folio]: candidate
+        };
+      }
+    });
+  };
+  
+  // Función para abrir búsqueda de Google
+  const handleGoogleSearch = (nombre) => {
+    const searchQuery = `Noticias sobre "${nombre}" candidato al poder judicial en México`;
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+  };
+
+  // Función para abrir el modal de detalles del candidato
+  const handleOpenDetailModal = (candidate, e) => {
+    // Evitar que se propague el evento si viene de los botones de acción
+    if (e && e.target.closest('button') || e.target.closest('a')) {
+      return;
     }
+    setDetailCandidate(candidate);
+    setIsDetailModalOpen(true);
+  };
+
+  // Función para cerrar el modal de detalles
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setDetailCandidate(null);
   };
 
   // Si está cargando, mostrar indicador
@@ -315,8 +493,8 @@ export default function ResultadosPage() {
             Candidatos que Comparten tus Valores
           </h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Descubrimos {filteredCandidates.length} candidatos que mejor coinciden con tus preferencias.
-            De un total de {totalCandidates} participantes en la elección.
+            De un total de {totalCandidates} participantes en la elección, selecciona un estado para encontrar
+            candidatos que mejor coinciden con tus preferencias.
           </p>
         </div>
 
@@ -342,25 +520,31 @@ export default function ResultadosPage() {
               </select>
             </div>
             
-            {/* Filtro por estado */}
+            {/* Filtro por estado - OBLIGATORIO */}
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-300">Estado</label>
+              <label className="block mb-2 text-sm font-medium text-gray-300">
+                Estado <span className="text-red-400">*</span>
+              </label>
               <select
                 name="estado"
                 value={filters.estado}
                 onChange={handleFilterChange}
                 className="block w-full p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
               >
-                <option value="">Todos los estados</option>
+                <option value="">Selecciona un estado</option>
                 {filterOptions.estados.map((estado) => (
                   <option key={estado} value={estado}>
                     {estado}
                   </option>
                 ))}
               </select>
+              {!filters.estado && (
+                <p className="mt-1 text-sm text-red-400">Debes seleccionar un estado para ver candidatos</p>
+              )}
             </div>
             
-            {/* Filtro por distrito */}
+            {/* Filtro por distrito - Dinámico según estado */}
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-300">Distrito Judicial</label>
               <select
@@ -368,6 +552,7 @@ export default function ResultadosPage() {
                 value={filters.distrito}
                 onChange={handleFilterChange}
                 className="block w-full p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+                disabled={!filters.estado || filterOptions.distritos.length === 0}
               >
                 <option value="">Todos los distritos</option>
                 {filterOptions.distritos.map((distrito) => (
@@ -379,12 +564,27 @@ export default function ResultadosPage() {
             </div>
           </div>
           
-          <button
-            onClick={clearFilters}
-            className="mt-4 px-4 py-2 bg-gray-800 text-gray-300 rounded-md hover:bg-gray-700 transition-all"
-          >
-            Limpiar filtros
-          </button>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-gray-800 text-gray-300 rounded-md hover:bg-gray-700 transition-all"
+            >
+              Limpiar filtros
+            </button>
+            
+            <div className="text-gray-400 text-sm">
+              {filters.estado ? (
+                <>
+                  Mostrando {filteredCandidates.length} candidato{filteredCandidates.length !== 1 ? 's' : ''} 
+                  {filters.candidatura ? ` de tipo ${filters.candidatura}` : ''}
+                  {` en ${filters.estado}`}
+                  {filters.distrito ? ` (Distrito ${filters.distrito})` : ''}
+                </>
+              ) : (
+                <>Selecciona un estado para ver candidatos</>
+              )}
+            </div>
+          </div>
         </div>
         
         {/* 5 Dimensions */}
@@ -425,126 +625,432 @@ export default function ResultadosPage() {
         
         {/* Gráfico de Radar */}
         <div className="mb-12 bg-gray-900/90 p-6 rounded-lg shadow-md border border-gray-800">
-          <h3 className="text-xl font-bold mb-6 text-white tracking-wide text-center">Visualización de tu perfil</h3>
-          <div className="mx-auto" style={{ maxWidth: '500px', height: '400px' }}>
-            <Radar data={prepareRadarData()} options={radarOptions} />
+          <h3 className="text-xl font-bold mb-4 text-white tracking-wide text-center">
+            Visualización de tu perfil
+            {Object.keys(selectedCandidates).length > 0 && (
+              <span className="ml-2 text-blue-400">vs {Object.keys(selectedCandidates).length} candidato(s)</span>
+            )}
+          </h3>
+          {Object.keys(selectedCandidates).length > 0 && (
+            <div className="mb-4 flex justify-center">
+              <button 
+                onClick={() => setSelectedCandidates({})}
+                className="px-4 py-2 bg-blue-900/30 text-blue-300 rounded-md hover:bg-blue-800/50 transition-all text-sm"
+              >
+                ↩️ Quitar todas las comparaciones
+              </button>
+            </div>
+          )}
+          <div className="mx-auto flex flex-col md:flex-row items-center" style={{ minHeight: '400px' }}>
+            <div className="w-full h-[400px]">
+              <Radar data={prepareRadarData()} options={radarOptions} />
+            </div>
           </div>
+          {Object.keys(selectedCandidates).length === 0 && (
+            <div className="mt-4 text-center text-gray-400 text-sm">
+              <p>Haz clic en el botón 📊 de cualquier candidato para comparar su perfil con el tuyo</p>
+            </div>
+          )}
         </div>
         
         {/* Candidatos encontrados */}
         <div className="mb-12">
           <h3 className="text-xl font-bold mb-6 text-white tracking-wide text-center">
-            Candidatos que coinciden con tu perfil
+            {filters.estado ? 
+              `Candidatos que coinciden con tu perfil (${filteredCandidates.length})` :
+              'Selecciona un estado para ver resultados'
+            }
           </h3>
           
-          {/* Carrusel de candidatos */}
-          <Slider {...sliderSettings}>
-            {filteredCandidates.map((candidate, index) => (
-              <div key={candidate.folio} className="px-2">
-                <div className="bg-gray-900/90 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all border border-gray-800 h-full flex flex-col items-center">
-                  {/* Porcentaje de similitud en la parte superior */}
-                  <div className="text-2xl font-bold text-blue-400 mb-2">
-                    {(candidate.similarity * 100).toFixed(1)}%
-                  </div>
-                  
-                  {/* Nombre y posición */}
-                  <h4 className="text-lg font-semibold text-center mb-4 text-white">{index + 1}. {candidate.nombre}</h4>
-                  
-                  {/* Imagen del candidato en círculo al centro - solo mostrar si no ha fallado antes */}
-                  <div className="relative flex items-center justify-center my-4">
-                    <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-800 border-4 border-blue-900/40">
-                      {!failedImages[candidate.folio] ? (
-                        <Image
-                          src={`https://candidaturaspoderjudicial.ine.mx/cycc/img/fotocandidato/${candidate.folio}.jpg`}
-                          alt={`Foto de ${candidate.nombre}`}
-                          fill
-                          style={{ objectFit: 'cover' }}
-                          onError={(e) => handleImageError(e, candidate.folio)}
-                          sizes="96px"
-                        />
-                      ) : (
-                        // Si la imagen ha fallado previamente, mostrar directamente el placeholder
-                        <div className="w-full h-full flex items-center justify-center bg-gray-700 text-gray-300">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="text-sm text-gray-400 text-center mb-4">
-                    {candidate.nombreCorto} | {candidate.nombreEstado} | Distrito: {candidate.idDistritoJudicial || 'N/A'}
-                  </div>
-                  
-                  <div className="w-full mt-3 grid grid-cols-5 gap-2 mb-6">
-                    <div className="text-center">
-                      <div className="text-xs text-indigo-400">CT</div>
-                      <div className="font-medium text-white">{candidate.CT_score}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-blue-400">IE</div>
-                      <div className="font-medium text-white">{candidate.IE_score}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-cyan-400">EJ</div>
-                      <div className="font-medium text-white">{candidate.EJ_score}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-teal-400">CR</div>
-                      <div className="font-medium text-white">{candidate.CR_score}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-green-400">SS</div>
-                      <div className="font-medium text-white">{candidate.SS_score}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-auto">
-                    <a
-                      href={candidate.url_perfil}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block px-4 py-2 bg-blue-900/30 text-blue-300 rounded-md hover:bg-blue-800/50 transition-all"
-                    >
-                      Ver perfil completo
-                    </a>
-                  </div>
-                </div>
+          {!filters.estado ? (
+            <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-800/40 text-center my-8">
+              <p className="text-gray-300 mb-4">
+                Para ver candidatos, primero selecciona un estado en los filtros superiores.
+              </p>
+              <p className="text-sm text-gray-400">
+                El proceso electoral se realiza a nivel estatal, por lo que es necesario seleccionar un estado para mostrar los candidatos relevantes.
+              </p>
+            </div>
+          ) : filteredCandidates.length === 0 ? (
+            <div className="bg-amber-900/30 p-6 rounded-lg border border-amber-800/40 text-center my-8">
+              <p className="text-gray-300">
+                No se encontraron candidatos que coincidan con los filtros seleccionados.
+              </p>
+              <button
+                onClick={clearFilters}
+                className="mt-4 px-4 py-2 bg-amber-900/50 text-white rounded-md hover:bg-amber-800/60 transition-all"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Información de desplazamiento */}
+              <div className="text-center text-gray-400 mb-4">
+                <span>Desliza para ver más candidatos →</span>
               </div>
-            ))}
-          </Slider>
+              
+              {/* Carrusel de candidatos con estilo personalizado */}
+              <div className="mx-auto relative px-10"> {/* Añadir padding para dejar espacio a las flechas */}
+                <Slider {...sliderSettings} className="candidate-slider">
+                  {filteredCandidates.map((candidate, index) => (
+                    <div key={candidate.folio} className="px-2 h-full">
+                      <div 
+                        className="bg-gray-900/90 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all border border-gray-800 h-full flex flex-col items-center cursor-pointer"
+                        onClick={(e) => handleOpenDetailModal(candidate, e)}
+                      >
+                        {/* Porcentaje de similitud en la parte superior */}
+                        <div className="text-2xl font-bold text-blue-400 mb-2">
+                          {(candidate.similarity * 100).toFixed(1)}%
+                        </div>
+                        
+                        {/* Nombre y posición */}
+                        <h4 className="text-lg font-semibold text-center mb-4 text-white">{index + 1}. {candidate.nombre}</h4>
+                        
+                        {/* Imagen del candidato en círculo al centro - solo mostrar si no ha fallado antes */}
+                        <div className="relative flex items-center justify-center my-4">
+                          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-800 border-4 border-blue-900/40">
+                            {!failedImages[candidate.folio] ? (
+                              <Image
+                                src={`https://candidaturaspoderjudicial.ine.mx/cycc/img/fotocandidato/${candidate.folio}.jpg`}
+                                alt={`Foto de ${candidate.nombre}`}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                onError={(e) => handleImageError(e, candidate.folio)}
+                                sizes="96px"
+                              />
+                            ) : (
+                              // Si la imagen ha fallado previamente, mostrar directamente el placeholder
+                              <div className="w-full h-full flex items-center justify-center bg-gray-700 text-gray-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="text-sm text-gray-400 text-center mb-4">
+                          {candidate.nombreCorto} | {candidate.nombreEstado} | Distrito: {candidate.idDistritoJudicial || 'N/A'}
+                        </div>
+                        
+                        <div className="w-full mt-3 grid grid-cols-5 gap-2 mb-6">
+                          <div className="text-center">
+                            <div className="text-xs text-indigo-400">CT</div>
+                            <div className="font-medium text-white">{candidate.CT_score}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-blue-400">IE</div>
+                            <div className="font-medium text-white">{candidate.IE_score}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-cyan-400">EJ</div>
+                            <div className="font-medium text-white">{candidate.EJ_score}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-teal-400">CR</div>
+                            <div className="font-medium text-white">{candidate.CR_score}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-green-400">SS</div>
+                            <div className="font-medium text-white">{candidate.SS_score}</div>
+                          </div>
+                        </div>
+                        
+                        {/* Botones de acción */}
+                        <div className="flex justify-center w-full gap-4 mb-4 mt-auto">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectCandidateForRadar(candidate);
+                            }}
+                            className={`p-2 rounded-full ${selectedCandidates[candidate.folio] ? 'bg-blue-600' : 'bg-gray-800'} hover:bg-blue-700 transition-all`}
+                            title="Ver en gráfico radar"
+                          >
+                            <span role="img" aria-label="radar" className="text-lg">📊</span>
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGoogleSearch(candidate.nombre);
+                            }}
+                            className="p-2 rounded-full bg-gray-800 hover:bg-blue-700 transition-all"
+                            title="Buscar noticias en Google"
+                          >
+                            <span role="img" aria-label="search" className="text-lg">🔍</span>
+                          </button>
+
+                          <a
+                            href={candidate.url_perfil}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-block p-2 rounded-full bg-gray-800 hover:bg-blue-700 transition-all"
+                            title="Ver perfil completo en sitio oficial"
+                          >
+                            <span role="img" aria-label="external-link" className="text-lg">🔗</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            </>
+          )}
         </div>
         
         {/* CTA Buttons */}
-        <div className="flex justify-center space-x-4 mb-8">
+        <div className="flex justify-center my-8">
           <button
             onClick={() => router.push('/preguntas')}
-            className="px-8 py-4 bg-white text-black font-bold rounded-lg shadow-xl 
-                      transition duration-300 ease-in-out hover:bg-gray-200 hover:scale-105 group accent-font"
+            className="px-8 py-3 mr-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all shadow-lg"
           >
-            <span className="flex items-center">
-              Volver al Cuestionario
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </span>
+            Volver al cuestionario
           </button>
           
-          <button
-            onClick={() => router.push('/')}
-            className="px-8 py-4 bg-gray-900/70 border border-gray-700 text-white font-bold rounded-lg shadow-xl 
-                     transition duration-300 ease-in-out hover:bg-gray-800 hover:scale-105 group"
-          >
-            <span className="flex items-center">
-              Inicio
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
-            </span>
-          </button>
+          <Link href="/" className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all shadow-lg">
+            Volver al inicio
+          </Link>
         </div>
       </main>
+      
+      {/* Estilos personalizados para el carrusel */}
+      <style jsx global>{`
+        /* Mejorar el estilo de las tarjetas dentro del slider */
+        .candidate-slider .slick-track {
+          display: flex !important;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+        
+        .candidate-slider .slick-slide {
+          height: inherit !important;
+          display: flex !important;
+        }
+        
+        .candidate-slider .slick-slide > div {
+          display: flex;
+          height: 100%;
+          width: 100%;
+        }
+        
+        /* Mejorar la visibilidad de las flechas al pasar el mouse */
+        .candidate-slider .slick-prev:hover,
+        .candidate-slider .slick-next:hover {
+          background-color: rgba(55, 65, 81, 0.9) !important;
+          transform: translateY(-50%) scale(1.1) !important;
+        }
+        
+        /* Estilo para dispositivos móviles */
+        @media (max-width: 640px) {
+          .candidate-slider .slick-dots {
+            bottom: -30px;
+          }
+          
+          .candidate-slider .slick-dots li button:before {
+            color: white;
+            opacity: 0.5;
+            font-size: 8px;
+          }
+          
+          .candidate-slider .slick-dots li.slick-active button:before {
+            color: white;
+            opacity: 0.9;
+          }
+        }
+      `}</style>
+
+      {/* Modal de Detalles del Candidato */}
+      {isDetailModalOpen && detailCandidate && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-auto">
+          <div className="bg-gray-900 rounded-lg shadow-xl border border-gray-800 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h3 className="text-2xl font-bold text-white">{detailCandidate.nombre}</h3>
+                <button 
+                  onClick={handleCloseDetailModal}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-6 mb-6">
+                {/* Imagen y datos básicos */}
+                <div className="flex flex-col items-center">
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-800 border-4 border-blue-900/40 mb-4">
+                    {!failedImages[detailCandidate.folio] ? (
+                      <Image
+                        src={`https://candidaturaspoderjudicial.ine.mx/cycc/img/fotocandidato/${detailCandidate.folio}.jpg`}
+                        alt={`Foto de ${detailCandidate.nombre}`}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        onError={(e) => handleImageError(e, detailCandidate.folio)}
+                        sizes="128px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-700 text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-xl font-bold text-blue-400 mb-2">
+                    {(detailCandidate.similarity * 100).toFixed(1)}% coincidencia
+                  </div>
+                  <div className="text-sm text-gray-400 text-center">
+                    {detailCandidate.nombreCorto} | {detailCandidate.nombreEstado}
+                  </div>
+                  <div className="text-sm text-gray-400 text-center mb-4">
+                    Distrito: {detailCandidate.idDistritoJudicial || 'N/A'}
+                  </div>
+                  
+                  {/* Botones de acción */}
+                  <div className="flex gap-3 my-4">
+                    <button
+                      onClick={(e) => handleSelectCandidateForRadar(detailCandidate)}
+                      className={`p-2 rounded-full ${selectedCandidates[detailCandidate.folio] ? 'bg-blue-600' : 'bg-gray-800'} hover:bg-blue-700 transition-all`}
+                      title="Ver en gráfico radar"
+                    >
+                      <span role="img" aria-label="radar" className="text-lg">📊</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleGoogleSearch(detailCandidate.nombre)}
+                      className="p-2 rounded-full bg-gray-800 hover:bg-blue-700 transition-all"
+                      title="Buscar noticias en Google"
+                    >
+                      <span role="img" aria-label="search" className="text-lg">🔍</span>
+                    </button>
+                    
+                    <a
+                      href={detailCandidate.url_perfil}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block p-2 rounded-full bg-gray-800 hover:bg-blue-700 transition-all"
+                      title="Ver perfil completo en sitio oficial"
+                    >
+                      <span role="img" aria-label="external-link" className="text-lg">🔗</span>
+                    </a>
+                  </div>
+                </div>
+                
+                {/* Detalles y puntuaciones */}
+                <div className="flex-1">
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-white mb-2">Puntuaciones</h4>
+                    <div className="grid grid-cols-5 gap-4">
+                      <div className="bg-indigo-900/30 p-3 rounded-lg border border-indigo-900/50">
+                        <div className="text-xs text-indigo-400 mb-1">CT</div>
+                        <div className="font-medium text-white text-xl">{detailCandidate.CT_score}</div>
+                        <div className="text-xs text-gray-400">Competencia Técnica</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CT * 100).toFixed(0)}%</div>
+                      </div>
+                      <div className="bg-blue-900/30 p-3 rounded-lg border border-blue-900/50">
+                        <div className="text-xs text-blue-400 mb-1">IE</div>
+                        <div className="font-medium text-white text-xl">{detailCandidate.IE_score}</div>
+                        <div className="text-xs text-gray-400">Independencia y Ética</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.IE * 100).toFixed(0)}%</div>
+                      </div>
+                      <div className="bg-cyan-900/30 p-3 rounded-lg border border-cyan-900/50">
+                        <div className="text-xs text-cyan-400 mb-1">EJ</div>
+                        <div className="font-medium text-white text-xl">{detailCandidate.EJ_score}</div>
+                        <div className="text-xs text-gray-400">Enfoque Jurídico</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.EJ * 100).toFixed(0)}%</div>
+                      </div>
+                      <div className="bg-teal-900/30 p-3 rounded-lg border border-teal-900/50">
+                        <div className="text-xs text-teal-400 mb-1">CR</div>
+                        <div className="font-medium text-white text-xl">{detailCandidate.CR_score}</div>
+                        <div className="text-xs text-gray-400">Capacidad Resolutiva</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CR * 100).toFixed(0)}%</div>
+                      </div>
+                      <div className="bg-green-900/30 p-3 rounded-lg border border-green-900/50">
+                        <div className="text-xs text-green-400 mb-1">SS</div>
+                        <div className="font-medium text-white text-xl">{detailCandidate.SS_score}</div>
+                        <div className="text-xs text-gray-400">Sensibilidad Social</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.SS * 100).toFixed(0)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Gráfico de comparación */}
+                  {selectedCandidates[detailCandidate.folio] && (
+                    <div className="bg-gray-800/50 p-4 rounded-lg mb-4 border border-gray-700">
+                      <h5 className="text-sm font-medium text-white mb-2">Comparación con tu perfil</h5>
+                      <div style={{ height: '200px' }}>
+                        <Radar data={prepareRadarData()} options={{...radarOptions, maintainAspectRatio: false}} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Explicaciones de puntuaciones */}
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-white mb-3">Detalles de puntuaciones</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                    <div className="text-indigo-400 font-medium mb-1">Competencia Técnica (CT)</div>
+                    <p className="text-gray-300 text-sm">{detailCandidate.CT_explanation}</p>
+                  </div>
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                    <div className="text-blue-400 font-medium mb-1">Independencia y Ética (IE)</div>
+                    <p className="text-gray-300 text-sm">{detailCandidate.IE_explanation}</p>
+                  </div>
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                    <div className="text-cyan-400 font-medium mb-1">Enfoque Jurídico (EJ)</div>
+                    <p className="text-gray-300 text-sm">{detailCandidate.EJ_explanation}</p>
+                  </div>
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                    <div className="text-teal-400 font-medium mb-1">Capacidad Resolutiva (CR)</div>
+                    <p className="text-gray-300 text-sm">{detailCandidate.CR_explanation}</p>
+                  </div>
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700 md:col-span-2">
+                    <div className="text-green-400 font-medium mb-1">Sensibilidad Social (SS)</div>
+                    <p className="text-gray-300 text-sm">{detailCandidate.SS_explanation}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Ventajas y Áreas de Oportunidad */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h4 className="text-lg font-semibold text-green-400 mb-3">Ventajas</h4>
+                  <div className="bg-green-900/20 p-4 rounded-lg border border-green-900/30">
+                    <ul className="list-disc pl-5 text-gray-300 space-y-2">
+                      {detailCandidate.ventajas.split(';').map((ventaja, index) => (
+                        <li key={index}>{ventaja.trim()}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-amber-400 mb-3">Áreas de oportunidad</h4>
+                  <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-900/30">
+                    <ul className="list-disc pl-5 text-gray-300 space-y-2">
+                      {detailCandidate.areas_oportunidad.split(';').map((area, index) => (
+                        <li key={index}>{area.trim()}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end">
+                <button 
+                  onClick={handleCloseDetailModal}
+                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-all"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
