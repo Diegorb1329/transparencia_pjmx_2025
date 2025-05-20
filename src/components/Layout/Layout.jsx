@@ -1,5 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
+import GithubDisclaimer from '../Common/GithubDisclaimer';
 
 const Layout = ({ children, title = 'PJMx 2025 - Encuentra tu candidato ideal' }) => {
   return (
@@ -12,6 +13,7 @@ const Layout = ({ children, title = 'PJMx 2025 - Encuentra tu candidato ideal' }
       </Head>
       
       <div className="min-h-screen flex flex-col bg-black">
+        <GithubDisclaimer />
         <header className="bg-black text-white">
           <div className="container mx-auto py-2 px-6">
             {/* Header content removed */}
