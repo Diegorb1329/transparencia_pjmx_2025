@@ -27,8 +27,8 @@ const QuestionnaireContent = () => {
   // Si está cargando, mostrar indicador
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-400"></div>
       </div>
     );
   }
@@ -36,8 +36,8 @@ const QuestionnaireContent = () => {
   // Si hay un error, mostrarlo
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
-        <h3 className="font-bold">Error</h3>
+      <div className="bg-red-900/20 border border-red-700/30 text-red-400 rounded-xl p-6 backdrop-blur-sm">
+        <h3 className="font-bold text-xl mb-2">Error</h3>
         <p>{error}</p>
       </div>
     );
@@ -46,8 +46,8 @@ const QuestionnaireContent = () => {
   // Si no hay preguntas, mostrar mensaje
   if (!questions || questions.length === 0) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4">
-        <h3 className="font-bold">Sin preguntas</h3>
+      <div className="bg-yellow-900/20 border border-yellow-700/30 text-yellow-400 rounded-xl p-6 backdrop-blur-sm">
+        <h3 className="font-bold text-xl mb-2">Sin preguntas</h3>
         <p>No se han encontrado preguntas para el cuestionario.</p>
       </div>
     );
@@ -69,11 +69,16 @@ const QuestionnaireContent = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <QuestionProgress currentStep={currentStep} totalSteps={totalSteps} />
 
+      {/* Numeración de preguntas */}
+      <div className="text-gray-400 text-sm tracking-widest font-medium mb-6">
+        {currentStep}/{totalSteps} PJMx 2025
+      </div>
+
       {/* Contenedor de la pregunta */}
-      <div className="mb-8">
+      <div className="mb-12 bg-black/30 backdrop-blur-md rounded-2xl p-8 border border-gray-800 shadow-xl">
         {currentQuestion.type === 'single' ? (
           <SingleQuestion
             question={currentQuestion}
@@ -87,21 +92,21 @@ const QuestionnaireContent = () => {
             currentAnswer={getCurrentAnswer(currentQuestion.id)}
           />
         ) : (
-          <div className="bg-red-50 p-4 rounded-lg">
+          <div className="bg-red-900/20 p-6 rounded-xl border border-red-700/30 text-red-400">
             Tipo de pregunta no soportado: {currentQuestion.type}
           </div>
         )}
       </div>
 
       {/* Navegación entre preguntas */}
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
         <button
           onClick={prevStep}
           disabled={currentStep === 1}
-          className={`px-6 py-2 rounded-lg shadow ${
+          className={`px-8 py-3 rounded-xl font-medium transition-all duration-200 ${
             currentStep === 1
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-white text-blue-700 hover:bg-gray-50'
+              ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+              : 'bg-gray-800 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600'
           }`}
         >
           Anterior
@@ -110,7 +115,7 @@ const QuestionnaireContent = () => {
         {isComplete ? (
           <button
             onClick={handleSubmit}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
+            className="px-8 py-3 bg-green-700 text-white rounded-xl font-medium shadow-lg hover:bg-green-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-600"
           >
             Ver resultados
           </button>
@@ -118,20 +123,15 @@ const QuestionnaireContent = () => {
           <button
             onClick={nextStep}
             disabled={!canContinue}
-            className={`px-6 py-2 rounded-lg shadow ${
+            className={`px-8 py-3 rounded-xl font-medium transition-all duration-200 ${
               canContinue
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                ? 'bg-blue-700 text-white hover:bg-blue-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-600'
+                : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
             }`}
           >
             Siguiente
           </button>
         )}
-      </div>
-      
-      {/* Contador de preguntas respondidas */}
-      <div className="mt-8 text-center text-gray-600">
-        <p>{userAnswers.length} de {totalSteps} preguntas respondidas</p>
       </div>
     </div>
   );
@@ -142,7 +142,9 @@ export default function PreguntasPage() {
   return (
     <QuestionnaireProvider>
       <Layout title="PJMx 2025 - Cuestionario">
-        <QuestionnaireContent />
+        <div className="min-h-screen bg-black text-white">
+          <QuestionnaireContent />
+        </div>
       </Layout>
     </QuestionnaireProvider>
   );

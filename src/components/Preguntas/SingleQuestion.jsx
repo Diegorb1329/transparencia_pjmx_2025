@@ -6,24 +6,24 @@ const SingleQuestion = ({ question, onAnswer, currentAnswer }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">{question.text}</h3>
+    <div>
+      <h2 className="text-2xl font-semibold mb-6 text-white">{question.text}</h2>
       
-      <div className="space-y-3">
+      <div className="space-y-4 mt-8">
         {question.options.map((option, index) => (
           <div 
             key={index}
-            className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 
+            className={`p-5 border rounded-xl cursor-pointer transition-all duration-300 
               ${currentAnswer === index 
-                ? 'border-blue-500 bg-blue-50 shadow-md' 
-                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}
+                ? 'border-blue-400 bg-blue-900/20 shadow-lg' 
+                : 'border-gray-700 hover:border-blue-400 hover:bg-blue-900/10'}`}
             onClick={() => handleOptionSelect(index)}
           >
             <div className="flex items-center">
-              <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center
+              <div className={`w-6 h-6 rounded-full mr-4 flex items-center justify-center
                 ${currentAnswer === index 
                   ? 'bg-blue-500 text-white' 
-                  : 'border border-gray-400'}`}
+                  : 'border border-gray-500'}`}
               >
                 {currentAnswer === index && (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -31,14 +31,14 @@ const SingleQuestion = ({ question, onAnswer, currentAnswer }) => {
                   </svg>
                 )}
               </div>
-              <div className="flex-1">{option.text}</div>
+              <div className="flex-1 text-white">{option.text}</div>
             </div>
           </div>
         ))}
       </div>
       
       {/* Dimensión de la pregunta (para debug/testing) */}
-      <div className="mt-4 text-xs text-gray-400">
+      <div className="mt-6 text-xs text-gray-500">
         Dimensión: {question.dimension}
       </div>
     </div>

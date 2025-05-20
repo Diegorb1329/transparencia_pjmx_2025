@@ -11,10 +11,10 @@ const Layout = ({ children, title = 'PJMx 2025 - Encuentra tu candidato ideal' }
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <header className="bg-blue-800 text-white shadow-md">
-          <div className="container mx-auto py-4 px-6">
-            <h1 className="text-2xl font-bold">Transparencia PJMx 2025</h1>
+      <div className="min-h-screen flex flex-col bg-black">
+        <header className="bg-black text-white">
+          <div className="container mx-auto py-2 px-6">
+            {/* Header content removed */}
           </div>
         </header>
         
@@ -22,8 +22,8 @@ const Layout = ({ children, title = 'PJMx 2025 - Encuentra tu candidato ideal' }
           {children}
         </main>
         
-        <footer className="bg-gray-100 border-t">
-          <div className="container mx-auto p-6 text-center text-gray-600">
+        <footer className="bg-black border-t border-gray-800">
+          <div className="container mx-auto p-6 text-center text-gray-500">
             <p>© {new Date().getFullYear()} PJMx 2025 - Proyecto de transparencia judicial</p>
           </div>
         </footer>

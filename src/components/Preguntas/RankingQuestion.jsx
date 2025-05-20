@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const RankingQuestion = ({ question, onAnswer, currentAnswer }) => {
   const [ranking, setRanking] = useState([]);
+  const [dragging, setDragging] = useState(null);
   
   // Inicializar el ranking al cargar el componente
   useEffect(() => {
@@ -39,30 +40,99 @@ const RankingQuestion = ({ question, onAnswer, currentAnswer }) => {
     onAnswer(question.id, newRanking);
   };
   
+  // Funciones de arrastrar y soltar
+  const handleDragStart = (e, index) => {
+    setDragging(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index);
+    // Para mejorar la vista de arrastre
+    if (e.target.classList) {
+      setTimeout(() => {
+        e.target.classList.add('opacity-60');
+      }, 0);
+    }
+  };
+  
+  const handleDragEnd = (e) => {
+    setDragging(null);
+    if (e.target.classList) {
+      e.target.classList.remove('opacity-60');
+    }
+  };
+  
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  };
+  
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    if (e.currentTarget.classList) {
+      e.currentTarget.classList.add('bg-blue-900/30');
+    }
+  };
+  
+  const handleDragLeave = (e) => {
+    if (e.currentTarget.classList) {
+      e.currentTarget.classList.remove('bg-blue-900/30');
+    }
+  };
+  
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+    const sourceIndex = dragging;
+    
+    if (sourceIndex === targetIndex) return;
+    
+    const newRanking = [...ranking];
+    const item = newRanking[sourceIndex];
+    
+    // Eliminar el elemento de su posición original
+    newRanking.splice(sourceIndex, 1);
+    // Insertar en la nueva posición
+    newRanking.splice(targetIndex, 0, item);
+    
+    if (e.currentTarget.classList) {
+      e.currentTarget.classList.remove('bg-blue-900/30');
+    }
+    
+    setRanking(newRanking);
+    onAnswer(question.id, newRanking);
+  };
+  
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <h3 className="text-xl font-semibold mb-2 text-gray-800">{question.text}</h3>
-      <p className="text-gray-600 mb-4">
-        Ordena las opciones por importancia. La primera es la más importante, la última la menos importante.
+    <div>
+      <h2 className="text-2xl font-semibold mb-4 text-white">{question.text}</h2>
+      <p className="text-gray-400 mb-6">
+        Ordena las opciones por importancia. Arrastra y suelta los elementos para ordenarlos o usa las flechas.
       </p>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         {ranking.map((optionIndex, rankIndex) => (
           <div 
             key={optionIndex}
-            className="flex items-center p-3 bg-white border rounded-lg"
+            className={`flex items-center p-4 bg-black/30 border border-gray-700 rounded-xl cursor-move transition-all 
+              ${dragging === rankIndex ? 'opacity-60' : ''}`}
+            draggable="true"
+            onDragStart={(e) => handleDragStart(e, rankIndex)}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragEnter={(e) => handleDragEnter(e)}
+            onDragLeave={(e) => handleDragLeave(e)}
+            onDrop={(e) => handleDrop(e, rankIndex)}
           >
-            <div className="flex-none w-8 h-8 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold mr-3">
+            <div className="flex-none w-8 h-8 bg-blue-700 rounded-full text-white flex items-center justify-center font-bold mr-4">
               {rankIndex + 1}
             </div>
-            <div className="flex-grow">
+            <div className="flex-grow text-white">
               {question.options[optionIndex].text}
             </div>
-            <div className="flex-none flex space-x-1">
+            <div className="flex-none flex space-x-2">
               <button 
                 onClick={() => moveUp(rankIndex)}
                 disabled={rankIndex === 0}
-                className={`p-1 rounded ${rankIndex === 0 ? 'text-gray-300' : 'text-blue-600 hover:bg-blue-50'}`}
+                className={`p-2 rounded-lg transition-all ${rankIndex === 0 ? 'text-gray-600 cursor-not-allowed' : 'text-blue-400 hover:bg-blue-900/20'}`}
                 aria-label="Mover arriba"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -72,7 +142,7 @@ const RankingQuestion = ({ question, onAnswer, currentAnswer }) => {
               <button 
                 onClick={() => moveDown(rankIndex)}
                 disabled={rankIndex === ranking.length - 1}
-                className={`p-1 rounded ${rankIndex === ranking.length - 1 ? 'text-gray-300' : 'text-blue-600 hover:bg-blue-50'}`}
+                className={`p-2 rounded-lg transition-all ${rankIndex === ranking.length - 1 ? 'text-gray-600 cursor-not-allowed' : 'text-blue-400 hover:bg-blue-900/20'}`}
                 aria-label="Mover abajo"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -85,14 +155,14 @@ const RankingQuestion = ({ question, onAnswer, currentAnswer }) => {
       </div>
       
       {/* Botón para restablecer el orden */}
-      <div className="mt-4">
+      <div className="mt-6">
         <button
           onClick={() => {
             const defaultRanking = question.options.map((_, index) => index);
             setRanking(defaultRanking);
             onAnswer(question.id, defaultRanking);
           }}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
+          className="px-4 py-2 border border-gray-700 rounded-xl text-sm text-gray-300 hover:bg-gray-800 transition-all"
         >
           Restablecer orden original
         </button>
