@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Matching Usuario-Candidatos para PJMx 2025
 
-## Getting Started
+Este proyecto implementa un sistema de asociación entre usuarios y candidatos a jueces utilizando la similitud del coseno para encontrar los mejores matches basados en 5 dimensiones clave:
 
-First, run the development server:
+- **CT**: Competencia técnica
+- **IE**: Independencia y ética
+- **EJ**: Enfoque jurídico
+- **CR**: Capacidad resolutiva
+- **SS**: Sensibilidad social
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Funcionamiento
+
+1. El usuario responde un cuestionario sobre sus preferencias respecto a cualidades judiciales
+2. Las respuestas se procesan para generar un vector de afinidad en las 5 dimensiones
+3. Se calcula la similitud del coseno entre el vector del usuario y los vectores de cada candidato
+4. Se muestran los candidatos más similares, ordenados por grado de compatibilidad
+
+## Estructura del Proyecto
+
+```
+pjmx2025_vercel/
+  ├── public/
+  │   └── data/
+  │       ├── user_questions.json    # Preguntas del cuestionario
+  │       └── candidates_scored_full_2.json  # Datos de candidatos con scores
+  │
+  └── src/
+      ├── components/
+      │   └── MatchingComponent.jsx  # Componente React para el cuestionario
+      │
+      └── utils/
+          ├── userScoreCalculator.js    # Calcula scores de usuarios
+          ├── similarityCalculator.js   # Calcula similitud del coseno
+          ├── matchingService.js        # Servicio integrado de matching
+          ├── matchingService.test.js   # Tests para el servicio
+          └── testSimilarity.js         # Script para pruebas
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tipos de Preguntas y Procesamiento
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+El sistema procesa distintos tipos de preguntas:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Single**: Selección única con puntajes directos
+- **Ranking**: Ordenamiento de dimensiones por importancia
+- **Tradeoff**: Comparaciones entre dimensiones
+- **Filtro/Sacrificio**: Identificación de dimensiones menos relevantes
 
-## Learn More
+## Algoritmo de Similitud
 
-To learn more about Next.js, take a look at the following resources:
+1. Las respuestas del usuario se convierten a un vector normalizado en 5 dimensiones
+2. Los candidatos ya tienen puntuaciones en las mismas 5 dimensiones
+3. Se calcula la similitud del coseno entre vectores normalizados
+4. El resultado es un valor entre 0 y 1, donde 1 es perfecta similitud
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Uso en React
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```jsx
+import { useEffect, useState } from 'react';
+import { loadMatchingData, processUserAnswersAndFindMatches } from './utils/matchingService';
 
-## Deploy on Vercel
+function App() {
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [matchResults, setMatchResults] = useState(null);
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  const submitAnswers = async () => {
+    const { questions, candidates } = await loadMatchingData();
+    const results = await processUserAnswersAndFindMatches(
+      userAnswers, 
+      questions, 
+      candidates
+    );
+    setMatchResults(results);
+  };
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  // Resto del componente...
+}
+```
+
+## Cómo Probar
+
+Para ejecutar el script de prueba:
+
+```
+cd pjmx2025_vercel
+node --experimental-modules src/utils/testSimilarity.js
+```
+
+Para ejecutar los tests:
+
+```
+npm test
+```
