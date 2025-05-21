@@ -716,23 +716,23 @@ export default function ResultadosPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
           <div className="flex flex-col items-center bg-[#1a1a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-indigo-900/20 transition-all border border-indigo-900/30 hover:-translate-y-1">
             <div className="font-bold text-2xl text-indigo-400 mb-1">CT</div>
-            <ProgressBar value={typeof results.userVector.CT === 'number' && results.userVector.CT <= 1 ? results.userVector.CT * 100 : Number(results.userVector.CT)} color="bg-indigo-500" label="Competencia Técnica" />
+            <ProgressBar value={typeof results.userVector.CT === 'number' && results.userVector.CT <= 1 ? results.userVector.CT * 100 : Number(results.userVector.CT)} color="bg-indigo-500" label="Competencia Técnica" decimals={isMobile ? 0 : 1} />
           </div>
           <div className="flex flex-col items-center bg-[#1a2a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-blue-900/20 transition-all border border-blue-900/30 hover:-translate-y-1">
             <div className="font-bold text-2xl text-blue-400 mb-1">IE</div>
-            <ProgressBar value={typeof results.userVector.IE === 'number' && results.userVector.IE <= 1 ? results.userVector.IE * 100 : Number(results.userVector.IE)} color="bg-blue-500" label="Independencia y Ética" />
+            <ProgressBar value={typeof results.userVector.IE === 'number' && results.userVector.IE <= 1 ? results.userVector.IE * 100 : Number(results.userVector.IE)} color="bg-blue-500" label="Independencia y Ética" decimals={isMobile ? 0 : 1} />
           </div>
           <div className="flex flex-col items-center bg-[#1a3a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-cyan-900/20 transition-all border border-cyan-900/30 hover:-translate-y-1">
             <div className="font-bold text-2xl text-cyan-400 mb-1">EJ</div>
-            <ProgressBar value={typeof results.userVector.EJ === 'number' && results.userVector.EJ <= 1 ? results.userVector.EJ * 100 : Number(results.userVector.EJ)} color="bg-cyan-500" label="Enfoque Jurídico" />
+            <ProgressBar value={typeof results.userVector.EJ === 'number' && results.userVector.EJ <= 1 ? results.userVector.EJ * 100 : Number(results.userVector.EJ)} color="bg-cyan-500" label="Enfoque Jurídico" decimals={isMobile ? 0 : 1} />
           </div>
           <div className="flex flex-col items-center bg-[#1a4a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-teal-900/20 transition-all border border-teal-900/30 hover:-translate-y-1">
             <div className="font-bold text-2xl text-teal-400 mb-1">CR</div>
-            <ProgressBar value={typeof results.userVector.CR === 'number' && results.userVector.CR <= 1 ? results.userVector.CR * 100 : Number(results.userVector.CR)} color="bg-teal-500" label="Capacidad Resolutiva" />
+            <ProgressBar value={typeof results.userVector.CR === 'number' && results.userVector.CR <= 1 ? results.userVector.CR * 100 : Number(results.userVector.CR)} color="bg-teal-500" label="Capacidad Resolutiva" decimals={isMobile ? 0 : 1} />
           </div>
           <div className="flex flex-col items-center bg-[#1a4a2a] rounded-lg py-3 px-2 shadow-lg hover:shadow-green-900/20 transition-all border border-green-900/30 hover:-translate-y-1">
             <div className="font-bold text-2xl text-green-400 mb-1">SS</div>
-            <ProgressBar value={typeof results.userVector.SS === 'number' && results.userVector.SS <= 1 ? results.userVector.SS * 100 : Number(results.userVector.SS)} color="bg-green-500" label="Sensibilidad Social" />
+            <ProgressBar value={typeof results.userVector.SS === 'number' && results.userVector.SS <= 1 ? results.userVector.SS * 100 : Number(results.userVector.SS)} color="bg-green-500" label="Sensibilidad Social" decimals={isMobile ? 0 : 1} />
           </div>
         </div>
         
@@ -825,7 +825,7 @@ export default function ResultadosPage() {
                     modifier: 1,
                     slideShadows: true,
                   }}
-                  navigation={!isMobile}
+                  navigation={true}
                   modules={[EffectCoverflow, Navigation]}
                   className="candidate-swiper"
                   style={{ paddingBottom: '40px' }}
@@ -880,23 +880,23 @@ export default function ResultadosPage() {
                         <div className="w-full mt-3 grid grid-cols-5 gap-2 mb-6">
                           <div className="text-center">
                             <div className="text-xs text-indigo-400">CT</div>
-                            <ProgressBar value={typeof candidate.CT_score === 'number' && candidate.CT_score <= 1 ? candidate.CT_score * 100 : Number(candidate.CT_score)} color="bg-indigo-500" />
+                            <ProgressBar value={typeof candidate.CT_score === 'number' && candidate.CT_score <= 1 ? candidate.CT_score * 100 : Number(candidate.CT_score)} color="bg-indigo-500" decimals={isMobile ? 0 : 1} />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-blue-400">IE</div>
-                            <ProgressBar value={typeof candidate.IE_score === 'number' && candidate.IE_score <= 1 ? candidate.IE_score * 100 : Number(candidate.IE_score)} color="bg-blue-500" />
+                            <ProgressBar value={typeof candidate.IE_score === 'number' && candidate.IE_score <= 1 ? candidate.IE_score * 100 : Number(candidate.IE_score)} color="bg-blue-500" decimals={isMobile ? 0 : 1} />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-cyan-400">EJ</div>
-                            <ProgressBar value={typeof candidate.EJ_score === 'number' && candidate.EJ_score <= 1 ? candidate.EJ_score * 100 : Number(candidate.EJ_score)} color="bg-cyan-500" />
+                            <ProgressBar value={typeof candidate.EJ_score === 'number' && candidate.EJ_score <= 1 ? candidate.EJ_score * 100 : Number(candidate.EJ_score)} color="bg-cyan-500" decimals={isMobile ? 0 : 1} />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-teal-400">CR</div>
-                            <ProgressBar value={typeof candidate.CR_score === 'number' && candidate.CR_score <= 1 ? candidate.CR_score * 100 : Number(candidate.CR_score)} color="bg-teal-500" />
+                            <ProgressBar value={typeof candidate.CR_score === 'number' && candidate.CR_score <= 1 ? candidate.CR_score * 100 : Number(candidate.CR_score)} color="bg-teal-500" decimals={isMobile ? 0 : 1} />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-green-400">SS</div>
-                            <ProgressBar value={typeof candidate.SS_score === 'number' && candidate.SS_score <= 1 ? candidate.SS_score * 100 : Number(candidate.SS_score)} color="bg-green-500" />
+                            <ProgressBar value={typeof candidate.SS_score === 'number' && candidate.SS_score <= 1 ? candidate.SS_score * 100 : Number(candidate.SS_score)} color="bg-green-500" decimals={isMobile ? 0 : 1} />
                           </div>
                         </div>
                         
@@ -1093,27 +1093,27 @@ export default function ResultadosPage() {
                     <h4 className="text-lg font-semibold text-white mb-2">Puntuaciones</h4>
                     <div className="grid grid-cols-5 gap-4">
                       <div className="flex flex-col items-center">
-                        <ProgressBar value={typeof detailCandidate.CT_score === 'number' && detailCandidate.CT_score <= 1 ? detailCandidate.CT_score * 100 : Number(detailCandidate.CT_score)} color="bg-indigo-500" label="CT" />
+                        <ProgressBar value={typeof detailCandidate.CT_score === 'number' && detailCandidate.CT_score <= 1 ? detailCandidate.CT_score * 100 : Number(detailCandidate.CT_score)} color="bg-indigo-500" label="CT" decimals={isMobile ? 0 : 1} />
                         <div className="text-xs text-gray-400">Competencia Técnica</div>
                         <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CT * 100).toFixed(1)}%</div>
                       </div>
                       <div className="flex flex-col items-center">
-                        <ProgressBar value={typeof detailCandidate.IE_score === 'number' && detailCandidate.IE_score <= 1 ? detailCandidate.IE_score * 100 : Number(detailCandidate.IE_score)} color="bg-blue-500" label="IE" />
+                        <ProgressBar value={typeof detailCandidate.IE_score === 'number' && detailCandidate.IE_score <= 1 ? detailCandidate.IE_score * 100 : Number(detailCandidate.IE_score)} color="bg-blue-500" label="IE" decimals={isMobile ? 0 : 1} />
                         <div className="text-xs text-gray-400">Independencia y Ética</div>
                         <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.IE * 100).toFixed(1)}%</div>
                       </div>
                       <div className="flex flex-col items-center">
-                        <ProgressBar value={typeof detailCandidate.EJ_score === 'number' && detailCandidate.EJ_score <= 1 ? detailCandidate.EJ_score * 100 : Number(detailCandidate.EJ_score)} color="bg-cyan-500" label="EJ" />
+                        <ProgressBar value={typeof detailCandidate.EJ_score === 'number' && detailCandidate.EJ_score <= 1 ? detailCandidate.EJ_score * 100 : Number(detailCandidate.EJ_score)} color="bg-cyan-500" label="EJ" decimals={isMobile ? 0 : 1} />
                         <div className="text-xs text-gray-400">Enfoque Jurídico</div>
                         <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.EJ * 100).toFixed(1)}%</div>
                       </div>
                       <div className="flex flex-col items-center">
-                        <ProgressBar value={typeof detailCandidate.CR_score === 'number' && detailCandidate.CR_score <= 1 ? detailCandidate.CR_score * 100 : Number(detailCandidate.CR_score)} color="bg-teal-500" label="CR" />
+                        <ProgressBar value={typeof detailCandidate.CR_score === 'number' && detailCandidate.CR_score <= 1 ? detailCandidate.CR_score * 100 : Number(detailCandidate.CR_score)} color="bg-teal-500" label="CR" decimals={isMobile ? 0 : 1} />
                         <div className="text-xs text-gray-400">Capacidad Resolutiva</div>
                         <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CR * 100).toFixed(1)}%</div>
                       </div>
                       <div className="flex flex-col items-center">
-                        <ProgressBar value={typeof detailCandidate.SS_score === 'number' && detailCandidate.SS_score <= 1 ? detailCandidate.SS_score * 100 : Number(detailCandidate.SS_score)} color="bg-green-500" label="SS" />
+                        <ProgressBar value={typeof detailCandidate.SS_score === 'number' && detailCandidate.SS_score <= 1 ? detailCandidate.SS_score * 100 : Number(detailCandidate.SS_score)} color="bg-green-500" label="SS" decimals={isMobile ? 0 : 1} />
                         <div className="text-xs text-gray-400">Sensibilidad Social</div>
                         <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.SS * 100).toFixed(1)}%</div>
                       </div>
