@@ -49,6 +49,18 @@ const NextArrow = (props) => {
   );
 };
 
+// Hook para detectar si es móvil
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 export default function ResultadosPage() {
   const router = useRouter();
   const [results, setResults] = useState(null);
@@ -86,6 +98,8 @@ export default function ResultadosPage() {
   const [sortType, setSortType] = useState('score'); // presetear en 'score'
   // 1. Agrega un estado para el candidato actualmente en hover
   const [hoveredCandidate, setHoveredCandidate] = useState(null);
+
+  const isMobile = useIsMobile();
 
   // Configuración del carrusel
   const sliderSettings = {
@@ -396,6 +410,7 @@ export default function ResultadosPage() {
         pointLabels: {
           color: 'rgba(255, 255, 255, 0.8)',
           font: { weight: 'bold' },
+          display: !isMobile,
         },
         backgroundColor: 'rgba(0,0,0,0)',
       }
@@ -798,19 +813,19 @@ export default function ResultadosPage() {
               {/* Carrusel de candidatos con estilo personalizado */}
               <div className="mx-auto relative px-10">
                 <Swiper
-                  effect="coverflow"
+                  effect={isMobile ? 'slide' : 'coverflow'}
                   grabCursor={true}
                   centeredSlides={true}
-                  slidesPerView={3}
-                  spaceBetween={30}
-                  coverflowEffect={{
+                  slidesPerView={isMobile ? 1 : 3}
+                  spaceBetween={isMobile ? 0 : 30}
+                  coverflowEffect={isMobile ? undefined : {
                     rotate: 30,
                     stretch: 0,
                     depth: 200,
                     modifier: 1,
                     slideShadows: true,
                   }}
-                  navigation
+                  navigation={!isMobile}
                   modules={[EffectCoverflow, Navigation]}
                   className="candidate-swiper"
                   style={{ paddingBottom: '40px' }}
