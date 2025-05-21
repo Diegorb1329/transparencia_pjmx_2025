@@ -43,6 +43,17 @@ export default function Home() {
               ? `¡${userCount} ${userCount === 1 ? 'persona ha' : 'personas han'} contestado!`
               : 'Cargando...'}
           </div>
+          {/* Botón de enlace a TransparencIA.tech */}
+          <div className="flex justify-center mb-4">
+            <a
+              href="https://www.transparencIA.tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow hover:bg-indigo-700 transition"
+            >
+              Conoce nuestro trabajo
+            </a>
+          </div>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Responde una serie de preguntas políticas para encontrar candidatos judiciales 
             que mejor representan tus valores y prioridades.

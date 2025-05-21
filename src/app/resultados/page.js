@@ -7,12 +7,13 @@ import Layout from '../../components/Layout/Layout';
 import { processUserAnswersAndFindMatches, loadMatchingData } from '../../utils/matchingService';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
-import Slider from 'react-slick';
 import Link from 'next/link';
-
-// Importar estilos para el carrusel
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import ProgressBar from './ProgressBar';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/navigation';
 
 // Registrar componentes de Chart.js
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -81,6 +82,10 @@ export default function ResultadosPage() {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   // Estado para rastrear qué imágenes han fallado
   const [failedImages, setFailedImages] = useState({});
+  // Estado para el tipo de ordenamiento
+  const [sortType, setSortType] = useState('score'); // presetear en 'score'
+  // 1. Agrega un estado para el candidato actualmente en hover
+  const [hoveredCandidate, setHoveredCandidate] = useState(null);
 
   // Configuración del carrusel
   const sliderSettings = {
@@ -321,11 +326,11 @@ export default function ResultadosPage() {
       {
         label: 'Tu perfil',
         data: [
-          results.userVector.CT,
-          results.userVector.IE,
-          results.userVector.EJ,
-          results.userVector.CR,
-          results.userVector.SS
+          typeof results.userVector.CT === 'number' && results.userVector.CT <= 1 ? results.userVector.CT * 100 : Number(results.userVector.CT),
+          typeof results.userVector.IE === 'number' && results.userVector.IE <= 1 ? results.userVector.IE * 100 : Number(results.userVector.IE),
+          typeof results.userVector.EJ === 'number' && results.userVector.EJ <= 1 ? results.userVector.EJ * 100 : Number(results.userVector.EJ),
+          typeof results.userVector.CR === 'number' && results.userVector.CR <= 1 ? results.userVector.CR * 100 : Number(results.userVector.CR),
+          typeof results.userVector.SS === 'number' && results.userVector.SS <= 1 ? results.userVector.SS * 100 : Number(results.userVector.SS),
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -350,11 +355,11 @@ export default function ResultadosPage() {
       datasets.push({
         label: candidate.nombre,
         data: [
-          candidate.CT_score / 100, // Normalizar a escala 0-1
-          candidate.IE_score / 100,
-          candidate.EJ_score / 100,
-          candidate.CR_score / 100,
-          candidate.SS_score / 100
+          typeof candidate.CT_score === 'number' && candidate.CT_score <= 1 ? candidate.CT_score * 100 : Number(candidate.CT_score),
+          typeof candidate.IE_score === 'number' && candidate.IE_score <= 1 ? candidate.IE_score * 100 : Number(candidate.IE_score),
+          typeof candidate.EJ_score === 'number' && candidate.EJ_score <= 1 ? candidate.EJ_score * 100 : Number(candidate.EJ_score),
+          typeof candidate.CR_score === 'number' && candidate.CR_score <= 1 ? candidate.CR_score * 100 : Number(candidate.CR_score),
+          typeof candidate.SS_score === 'number' && candidate.SS_score <= 1 ? candidate.SS_score * 100 : Number(candidate.SS_score),
         ],
         backgroundColor: colorPalette[colorIndex][0],
         borderColor: colorPalette[colorIndex][1],
@@ -376,34 +381,46 @@ export default function ResultadosPage() {
           display: true
         },
         suggestedMin: 0,
-        suggestedMax: 1,
+        suggestedMax: 100,
         ticks: {
           color: 'rgba(255, 255, 255, 0.7)',
           callback: function(value) {
-            return (value * 100) + '%';  // Mostrar como porcentaje
-          }
+            return value + '%';
+          },
+          backdropColor: 'rgba(0,0,0,0)',
+          z: 1,
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.2)',
         },
         pointLabels: {
           color: 'rgba(255, 255, 255, 0.8)',
+          font: { weight: 'bold' },
         },
+        backgroundColor: 'rgba(0,0,0,0)',
       }
     },
     plugins: {
       legend: {
-        position: 'right', // Posicionar la leyenda a la derecha
+        position: 'right',
         labels: {
           color: 'rgba(255, 255, 255, 0.8)',
-          font: {
-            weight: 'bold'
-          },
-          boxWidth: 15 // Reducir el tamaño de los cuadros de color en la leyenda
+          font: { weight: 'bold' },
+          boxWidth: 15
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.dataset.label || '';
+            const value = context.parsed.r !== undefined ? context.parsed.r : context.raw;
+            return `${label}: ${value.toFixed(1)}%`;
+          }
         }
       }
     },
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
+    backgroundColor: 'rgba(0,0,0,0)',
   };
   
   // Función para seleccionar un candidato para comparar en el radar
@@ -451,6 +468,27 @@ export default function ResultadosPage() {
     setIsDetailModalOpen(false);
     setDetailCandidate(null);
   };
+
+  // Ordenar los candidatos antes de renderizar el carrusel
+  const sortedCandidates = [...filteredCandidates].sort((a, b) => {
+    if (sortType === 'score') {
+      // Suma de scores normalizados (0-100)
+      const aSum = (typeof a.CT_score === 'number' && a.CT_score <= 1 ? a.CT_score * 100 : Number(a.CT_score))
+        + (typeof a.IE_score === 'number' && a.IE_score <= 1 ? a.IE_score * 100 : Number(a.IE_score))
+        + (typeof a.EJ_score === 'number' && a.EJ_score <= 1 ? a.EJ_score * 100 : Number(a.EJ_score))
+        + (typeof a.CR_score === 'number' && a.CR_score <= 1 ? a.CR_score * 100 : Number(a.CR_score))
+        + (typeof a.SS_score === 'number' && a.SS_score <= 1 ? a.SS_score * 100 : Number(a.SS_score));
+      const bSum = (typeof b.CT_score === 'number' && b.CT_score <= 1 ? b.CT_score * 100 : Number(b.CT_score))
+        + (typeof b.IE_score === 'number' && b.IE_score <= 1 ? b.IE_score * 100 : Number(b.IE_score))
+        + (typeof b.EJ_score === 'number' && b.EJ_score <= 1 ? b.EJ_score * 100 : Number(b.EJ_score))
+        + (typeof b.CR_score === 'number' && b.CR_score <= 1 ? b.CR_score * 100 : Number(b.CR_score))
+        + (typeof b.SS_score === 'number' && b.SS_score <= 1 ? b.SS_score * 100 : Number(b.SS_score));
+      return bSum - aSum;
+    } else {
+      // Ordenar por afinidad (similarity)
+      return (b.similarity || 0) - (a.similarity || 0);
+    }
+  });
 
   // Si está cargando, mostrar indicador
   if (loading) {
@@ -661,34 +699,25 @@ export default function ResultadosPage() {
           <h3 className="text-xl font-bold text-white tracking-wide mb-6">Tu perfil en las 5 dimensiones clave:</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
-          <div className="bg-[#1a1a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-indigo-900/20 transition-all border border-indigo-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-indigo-400">CT</div>
-            <div className="text-sm text-gray-400">Competencia Técnica</div>
-            <div className="font-medium text-white mt-1">{results && (results.userVector.CT * 100).toFixed(0)}%</div>
+          <div className="flex flex-col items-center bg-[#1a1a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-indigo-900/20 transition-all border border-indigo-900/30 hover:-translate-y-1">
+            <div className="font-bold text-2xl text-indigo-400 mb-1">CT</div>
+            <ProgressBar value={typeof results.userVector.CT === 'number' && results.userVector.CT <= 1 ? results.userVector.CT * 100 : Number(results.userVector.CT)} color="bg-indigo-500" label="Competencia Técnica" />
           </div>
-          
-          <div className="bg-[#1a2a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-blue-900/20 transition-all border border-blue-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-blue-400">IE</div>
-            <div className="text-sm text-gray-400">Independencia y Ética</div>
-            <div className="font-medium text-white mt-1">{results && (results.userVector.IE * 100).toFixed(0)}%</div>
+          <div className="flex flex-col items-center bg-[#1a2a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-blue-900/20 transition-all border border-blue-900/30 hover:-translate-y-1">
+            <div className="font-bold text-2xl text-blue-400 mb-1">IE</div>
+            <ProgressBar value={typeof results.userVector.IE === 'number' && results.userVector.IE <= 1 ? results.userVector.IE * 100 : Number(results.userVector.IE)} color="bg-blue-500" label="Independencia y Ética" />
           </div>
-          
-          <div className="bg-[#1a3a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-cyan-900/20 transition-all border border-cyan-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-cyan-400">EJ</div>
-            <div className="text-sm text-gray-400">Enfoque Jurídico</div>
-            <div className="font-medium text-white mt-1">{results && (results.userVector.EJ * 100).toFixed(0)}%</div>
+          <div className="flex flex-col items-center bg-[#1a3a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-cyan-900/20 transition-all border border-cyan-900/30 hover:-translate-y-1">
+            <div className="font-bold text-2xl text-cyan-400 mb-1">EJ</div>
+            <ProgressBar value={typeof results.userVector.EJ === 'number' && results.userVector.EJ <= 1 ? results.userVector.EJ * 100 : Number(results.userVector.EJ)} color="bg-cyan-500" label="Enfoque Jurídico" />
           </div>
-          
-          <div className="bg-[#1a4a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-teal-900/20 transition-all border border-teal-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-teal-400">CR</div>
-            <div className="text-sm text-gray-400">Capacidad Resolutiva</div>
-            <div className="font-medium text-white mt-1">{results && (results.userVector.CR * 100).toFixed(0)}%</div>
+          <div className="flex flex-col items-center bg-[#1a4a4a] rounded-lg py-3 px-2 shadow-lg hover:shadow-teal-900/20 transition-all border border-teal-900/30 hover:-translate-y-1">
+            <div className="font-bold text-2xl text-teal-400 mb-1">CR</div>
+            <ProgressBar value={typeof results.userVector.CR === 'number' && results.userVector.CR <= 1 ? results.userVector.CR * 100 : Number(results.userVector.CR)} color="bg-teal-500" label="Capacidad Resolutiva" />
           </div>
-          
-          <div className="bg-[#1a4a2a] rounded-lg text-center py-3 shadow-lg hover:shadow-green-900/20 transition-all border border-green-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-green-400">SS</div>
-            <div className="text-sm text-gray-400">Sensibilidad Social</div>
-            <div className="font-medium text-white mt-1">{results && (results.userVector.SS * 100).toFixed(0)}%</div>
+          <div className="flex flex-col items-center bg-[#1a4a2a] rounded-lg py-3 px-2 shadow-lg hover:shadow-green-900/20 transition-all border border-green-900/30 hover:-translate-y-1">
+            <div className="font-bold text-2xl text-green-400 mb-1">SS</div>
+            <ProgressBar value={typeof results.userVector.SS === 'number' && results.userVector.SS <= 1 ? results.userVector.SS * 100 : Number(results.userVector.SS)} color="bg-green-500" label="Sensibilidad Social" />
           </div>
         </div>
         
@@ -767,12 +796,35 @@ export default function ResultadosPage() {
               </div>
               
               {/* Carrusel de candidatos con estilo personalizado */}
-              <div className="mx-auto relative px-10"> {/* Añadir padding para dejar espacio a las flechas */}
-                <Slider {...sliderSettings} className="candidate-slider">
-                  {filteredCandidates.map((candidate, index) => (
-                    <div key={candidate.folio} className="px-2 h-full">
-                      <div 
-                        className="bg-gray-900/90 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all border border-gray-800 h-full flex flex-col items-center cursor-pointer"
+              <div className="mx-auto relative px-10">
+                <Swiper
+                  effect="coverflow"
+                  grabCursor={true}
+                  centeredSlides={true}
+                  slidesPerView={3}
+                  spaceBetween={30}
+                  coverflowEffect={{
+                    rotate: 30,
+                    stretch: 0,
+                    depth: 200,
+                    modifier: 1,
+                    slideShadows: true,
+                  }}
+                  navigation
+                  modules={[EffectCoverflow, Navigation]}
+                  className="candidate-swiper"
+                  style={{ paddingBottom: '40px' }}
+                  breakpoints={{
+                    1280: { slidesPerView: 4 },
+                    1024: { slidesPerView: 3 },
+                    640: { slidesPerView: 1 },
+                  }}
+                >
+                  {sortedCandidates.map((candidate, index) => (
+                    <SwiperSlide key={candidate.folio}>
+                      <div
+                        className={`bg-gray-900/90 p-6 rounded-lg shadow-lg transition-all border border-gray-800 h-full flex flex-col items-center cursor-pointer
+                          ${selectedCandidates[candidate.folio] ? 'bg-blue-800/80' : ''}`}
                         onClick={(e) => handleOpenDetailModal(candidate, e)}
                       >
                         {/* Porcentaje de similitud en la parte superior */}
@@ -813,23 +865,23 @@ export default function ResultadosPage() {
                         <div className="w-full mt-3 grid grid-cols-5 gap-2 mb-6">
                           <div className="text-center">
                             <div className="text-xs text-indigo-400">CT</div>
-                            <div className="font-medium text-white">{candidate.CT_score}</div>
+                            <ProgressBar value={typeof candidate.CT_score === 'number' && candidate.CT_score <= 1 ? candidate.CT_score * 100 : Number(candidate.CT_score)} color="bg-indigo-500" />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-blue-400">IE</div>
-                            <div className="font-medium text-white">{candidate.IE_score}</div>
+                            <ProgressBar value={typeof candidate.IE_score === 'number' && candidate.IE_score <= 1 ? candidate.IE_score * 100 : Number(candidate.IE_score)} color="bg-blue-500" />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-cyan-400">EJ</div>
-                            <div className="font-medium text-white">{candidate.EJ_score}</div>
+                            <ProgressBar value={typeof candidate.EJ_score === 'number' && candidate.EJ_score <= 1 ? candidate.EJ_score * 100 : Number(candidate.EJ_score)} color="bg-cyan-500" />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-teal-400">CR</div>
-                            <div className="font-medium text-white">{candidate.CR_score}</div>
+                            <ProgressBar value={typeof candidate.CR_score === 'number' && candidate.CR_score <= 1 ? candidate.CR_score * 100 : Number(candidate.CR_score)} color="bg-teal-500" />
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-green-400">SS</div>
-                            <div className="font-medium text-white">{candidate.SS_score}</div>
+                            <ProgressBar value={typeof candidate.SS_score === 'number' && candidate.SS_score <= 1 ? candidate.SS_score * 100 : Number(candidate.SS_score)} color="bg-green-500" />
                           </div>
                         </div>
                         
@@ -869,9 +921,9 @@ export default function ResultadosPage() {
                           </a>
                         </div>
                       </div>
-                    </div>
+                    </SwiperSlide>
                   ))}
-                </Slider>
+                </Swiper>
               </div>
             </>
           )}
@@ -890,48 +942,54 @@ export default function ResultadosPage() {
             Volver al inicio
           </Link>
         </div>
+
+        {/* Botón de enlace a TransparencIA.tech */}
+        <div className="flex justify-center my-8">
+          <a
+            href="https://www.transparencIA.tech"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow hover:bg-indigo-700 transition"
+          >
+            Conoce nuestro trabajo
+          </a>
+        </div>
       </main>
       
       {/* Estilos personalizados para el carrusel */}
       <style jsx global>{`
         /* Mejorar el estilo de las tarjetas dentro del slider */
-        .candidate-slider .slick-track {
-          display: flex !important;
-          padding-top: 10px;
-          padding-bottom: 10px;
-        }
-        
-        .candidate-slider .slick-slide {
+        .candidate-swiper .swiper-slide {
           height: inherit !important;
           display: flex !important;
         }
         
-        .candidate-slider .slick-slide > div {
+        .candidate-swiper .swiper-slide > div {
           display: flex;
           height: 100%;
           width: 100%;
         }
         
         /* Mejorar la visibilidad de las flechas al pasar el mouse */
-        .candidate-slider .slick-prev:hover,
-        .candidate-slider .slick-next:hover {
+        .candidate-swiper .swiper-button-prev:hover,
+        .candidate-swiper .swiper-button-next:hover {
           background-color: rgba(55, 65, 81, 0.9) !important;
           transform: translateY(-50%) scale(1.1) !important;
         }
         
         /* Estilo para dispositivos móviles */
         @media (max-width: 640px) {
-          .candidate-slider .slick-dots {
+          .candidate-swiper .swiper-pagination {
             bottom: -30px;
           }
           
-          .candidate-slider .slick-dots li button:before {
+          .candidate-swiper .swiper-pagination .swiper-pagination-bullet {
             color: white;
             opacity: 0.5;
             font-size: 8px;
           }
           
-          .candidate-slider .slick-dots li.slick-active button:before {
+          .candidate-swiper .swiper-pagination .swiper-pagination-bullet-active {
             color: white;
             opacity: 0.9;
           }
@@ -1019,35 +1077,30 @@ export default function ResultadosPage() {
                   <div className="mb-6">
                     <h4 className="text-lg font-semibold text-white mb-2">Puntuaciones</h4>
                     <div className="grid grid-cols-5 gap-4">
-                      <div className="bg-indigo-900/30 p-3 rounded-lg border border-indigo-900/50">
-                        <div className="text-xs text-indigo-400 mb-1">CT</div>
-                        <div className="font-medium text-white text-xl">{detailCandidate.CT_score}</div>
+                      <div className="flex flex-col items-center">
+                        <ProgressBar value={typeof detailCandidate.CT_score === 'number' && detailCandidate.CT_score <= 1 ? detailCandidate.CT_score * 100 : Number(detailCandidate.CT_score)} color="bg-indigo-500" label="CT" />
                         <div className="text-xs text-gray-400">Competencia Técnica</div>
-                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CT * 100).toFixed(0)}%</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CT * 100).toFixed(1)}%</div>
                       </div>
-                      <div className="bg-blue-900/30 p-3 rounded-lg border border-blue-900/50">
-                        <div className="text-xs text-blue-400 mb-1">IE</div>
-                        <div className="font-medium text-white text-xl">{detailCandidate.IE_score}</div>
+                      <div className="flex flex-col items-center">
+                        <ProgressBar value={typeof detailCandidate.IE_score === 'number' && detailCandidate.IE_score <= 1 ? detailCandidate.IE_score * 100 : Number(detailCandidate.IE_score)} color="bg-blue-500" label="IE" />
                         <div className="text-xs text-gray-400">Independencia y Ética</div>
-                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.IE * 100).toFixed(0)}%</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.IE * 100).toFixed(1)}%</div>
                       </div>
-                      <div className="bg-cyan-900/30 p-3 rounded-lg border border-cyan-900/50">
-                        <div className="text-xs text-cyan-400 mb-1">EJ</div>
-                        <div className="font-medium text-white text-xl">{detailCandidate.EJ_score}</div>
+                      <div className="flex flex-col items-center">
+                        <ProgressBar value={typeof detailCandidate.EJ_score === 'number' && detailCandidate.EJ_score <= 1 ? detailCandidate.EJ_score * 100 : Number(detailCandidate.EJ_score)} color="bg-cyan-500" label="EJ" />
                         <div className="text-xs text-gray-400">Enfoque Jurídico</div>
-                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.EJ * 100).toFixed(0)}%</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.EJ * 100).toFixed(1)}%</div>
                       </div>
-                      <div className="bg-teal-900/30 p-3 rounded-lg border border-teal-900/50">
-                        <div className="text-xs text-teal-400 mb-1">CR</div>
-                        <div className="font-medium text-white text-xl">{detailCandidate.CR_score}</div>
+                      <div className="flex flex-col items-center">
+                        <ProgressBar value={typeof detailCandidate.CR_score === 'number' && detailCandidate.CR_score <= 1 ? detailCandidate.CR_score * 100 : Number(detailCandidate.CR_score)} color="bg-teal-500" label="CR" />
                         <div className="text-xs text-gray-400">Capacidad Resolutiva</div>
-                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CR * 100).toFixed(0)}%</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.CR * 100).toFixed(1)}%</div>
                       </div>
-                      <div className="bg-green-900/30 p-3 rounded-lg border border-green-900/50">
-                        <div className="text-xs text-green-400 mb-1">SS</div>
-                        <div className="font-medium text-white text-xl">{detailCandidate.SS_score}</div>
+                      <div className="flex flex-col items-center">
+                        <ProgressBar value={typeof detailCandidate.SS_score === 'number' && detailCandidate.SS_score <= 1 ? detailCandidate.SS_score * 100 : Number(detailCandidate.SS_score)} color="bg-green-500" label="SS" />
                         <div className="text-xs text-gray-400">Sensibilidad Social</div>
-                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.SS * 100).toFixed(0)}%</div>
+                        <div className="text-xs text-blue-400 mt-1">Tu perfil: {results && (results.userVector.SS * 100).toFixed(1)}%</div>
                       </div>
                     </div>
                   </div>
