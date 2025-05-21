@@ -110,4 +110,21 @@ export const logAnalyticsEvent = async (eventType, eventData = {}) => {
     // No interrumpir el flujo si falla
     return null;
   }
+};
+
+/**
+ * Obtiene el conteo de usuarios que han contestado
+ * @returns {Promise<number>} Número de usuarios
+ */
+export const getUserAnswersCount = async () => {
+  try {
+    const { count, error } = await supabaseClient
+      .from('user_answers')
+      .select('*', { count: 'exact', head: true });
+    if (error) throw error;
+    return count || 0;
+  } catch (error) {
+    console.error('Error al obtener el conteo de usuarios:', error, JSON.stringify(error, null, 2));
+    return 0;
+  }
 }; 

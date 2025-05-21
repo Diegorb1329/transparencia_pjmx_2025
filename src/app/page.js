@@ -2,9 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import Layout from '../components/Layout/Layout';
+import { useEffect, useState } from 'react';
+import { getUserAnswersCount } from '../supabase/userDataService';
 
 export default function Home() {
   const router = useRouter();
+  const [userCount, setUserCount] = useState(null);
+
+  useEffect(() => {
+    getUserAnswersCount().then(setUserCount);
+  }, []);
 
   const handleStartQuestionnaire = () => {
     router.push('/preguntas');
@@ -30,6 +37,12 @@ export default function Home() {
           <h2 className="text-3xl md:text-5xl font-bold text-gray-400 mb-8 tracking-tight">
             Encuentra candidatos con tus valores
           </h2>
+          {/* Contador de usuarios */}
+          <div className="font-bold text-lg text-indigo-300 mb-4">
+            {userCount !== null
+              ? `¡${userCount} ${userCount === 1 ? 'persona ha' : 'personas han'} contestado!`
+              : 'Cargando...'}
+          </div>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Responde una serie de preguntas políticas para encontrar candidatos judiciales 
             que mejor representan tus valores y prioridades.
