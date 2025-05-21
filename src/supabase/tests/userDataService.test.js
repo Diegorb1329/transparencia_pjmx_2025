@@ -2,12 +2,16 @@ import { getUserId, saveUserAnswers, saveUserMatchResults, logAnalyticsEvent } f
 import supabaseClient from '../client';
 
 // Mock del cliente supabase
-jest.mock('../client', () => ({
-  from: jest.fn(() => ({
-    upsert: jest.fn(() => Promise.resolve({ data: { id: 1 }, error: null })),
-    insert: jest.fn(() => Promise.resolve({ data: { id: 1 }, error: null })),
-  })),
-}));
+jest.mock('../client', () => {
+  const insert = jest.fn(() => Promise.resolve({ data: { id: 1 }, error: null }));
+  const upsert = jest.fn(() => Promise.resolve({ data: { id: 1 }, error: null }));
+  return {
+    from: jest.fn(() => ({
+      insert,
+      upsert,
+    })),
+  };
+});
 
 // Mock del localStorage
 const localStorageMock = (() => {
@@ -30,6 +34,9 @@ describe('User Data Service', () => {
     // Limpiar mocks antes de cada test
     jest.clearAllMocks();
     localStorageMock.clear();
+    // Limpiar los métodos insert y upsert si existen
+    if (supabaseClient.from().insert) supabaseClient.from().insert.mockClear();
+    if (supabaseClient.from().upsert) supabaseClient.from().upsert.mockClear();
   });
 
   describe('getUserId', () => {
@@ -56,16 +63,15 @@ describe('User Data Service', () => {
   describe('saveUserAnswers', () => {
     test('debería guardar las respuestas del usuario en Supabase', async () => {
       const userAnswers = [{ questionId: 1, answerId: 2 }];
-      
       await saveUserAnswers(userAnswers);
-      
       expect(supabaseClient.from).toHaveBeenCalledWith('user_answers');
-      expect(supabaseClient.from().upsert).toHaveBeenCalledWith(
-        {
-          user_id: expect.any(String),
-          answers: userAnswers,
-        },
-        { onConflict: 'user_id' }
+      expect(supabaseClient.from().insert).toHaveBeenCalledWith(
+        [
+          {
+            user_id: expect.any(String),
+            answers: userAnswers,
+          }
+        ]
       );
     });
 
@@ -75,6 +81,29 @@ describe('User Data Service', () => {
       expect(result).toBeNull();
       expect(supabaseClient.from).not.toHaveBeenCalled();
     });
+
+    test('debería enviar el formato correcto y loguear el objeto', async () => {
+      // Generar respuesta aleatoria
+      const randomAnswer = Array.from({ length: 5 }, (_, i) => ({
+        questionId: i + 1,
+        answerId: Math.floor(Math.random() * 4)
+      }));
+      // Espiar el console.log
+      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+      await saveUserAnswers(randomAnswer);
+      // Verificar formato
+      expect(Array.isArray(randomAnswer)).toBe(true);
+      expect(typeof randomAnswer[0].questionId).toBe('number');
+      expect(typeof randomAnswer[0].answerId).toBe('number');
+      // Verificar que se logueó el objeto enviado
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Intentando guardar en Supabase:'),
+        expect.objectContaining({
+          answers: randomAnswer
+        })
+      );
+      logSpy.mockRestore();
+    });
   });
 
   describe('saveUserMatchResults', () => {
@@ -83,17 +112,16 @@ describe('User Data Service', () => {
         userVector: { CT: 0.5, IE: 0.7 },
         matchedCandidates: [{ id: 1, similarity: 0.8 }]
       };
-      
       await saveUserMatchResults(matchResults);
-      
       expect(supabaseClient.from).toHaveBeenCalledWith('user_matched_candidates');
-      expect(supabaseClient.from().upsert).toHaveBeenCalledWith(
-        {
-          user_id: expect.any(String),
-          matched_candidates: matchResults.matchedCandidates,
-          user_vector: matchResults.userVector,
-        },
-        { onConflict: 'user_id' }
+      expect(supabaseClient.from().insert).toHaveBeenCalledWith(
+        [
+          {
+            user_id: expect.any(String),
+            matched_candidates: matchResults.matchedCandidates,
+            user_vector: matchResults.userVector,
+          }
+        ]
       );
     });
 

@@ -8,7 +8,8 @@ import supabaseClient from './client';
 export const getUserId = () => {
   // Verificar si hay un entorno de navegador
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    return 'server-side';
+    // Si no hay entorno de navegador (ej. SSR), generar un UUID directamente
+    return uuidv4();
   }
   
   // Verificar si ya existe un ID de usuario
