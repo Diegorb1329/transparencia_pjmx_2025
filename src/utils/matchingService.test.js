@@ -8,7 +8,7 @@ const mockQuestions = [
     id: 1,
     dimension: "CT",
     type: "single",
-    text: "¿Prefieres jueces con experiencia internacional frente a jueces cuya experiencia es exclusivamente nacional?",
+    text: "¿Prefieres personas juzgadoras con experiencia internacional frente a personas juzgadoras cuya experiencia es exclusivamente nacional?",
     options: [
       {text: "Prefiero exclusivamente experiencia nacional", affinity: "CT"},
       {text: "Prefiero principalmente experiencia nacional", affinity: "CT"},
@@ -21,7 +21,7 @@ const mockQuestions = [
     id: 2,
     dimension: "IE",
     type: "single",
-    text: "¿Qué tan importante es para ti que un juez mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?",
+    text: "¿Qué tan importante es para ti que una persona juzgadora mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?",
     options: [
       {text: "Nada importante", affinity: "IE"},
       {text: "Poco importante", affinity: "IE"},
@@ -34,7 +34,7 @@ const mockQuestions = [
     id: 7,
     dimension: "RANKING",
     type: "ranking",
-    text: "Ordena por importancia las dimensiones en las que debería enfocarse un juez",
+    text: "Ordena por importancia las dimensiones en las que debería enfocarse una persona juzgadora",
     options: [
       {text: "Competencia técnica", affinity: "CT"},
       {text: "Independencia y ética", affinity: "IE"},

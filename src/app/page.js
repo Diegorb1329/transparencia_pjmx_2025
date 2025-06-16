@@ -4,10 +4,14 @@ import { useRouter } from 'next/navigation';
 import Layout from '../components/Layout/Layout';
 import { useEffect, useState } from 'react';
 import { getUserAnswersCount } from '../supabase/userDataService';
+import MethodologyModal from '../components/Common/MethodologyModal';
 
 export default function Home() {
   const router = useRouter();
   const [userCount, setUserCount] = useState(null);
+  const [showDimensionModal, setShowDimensionModal] = useState(false);
+  const [selectedDimension, setSelectedDimension] = useState(null);
+  const [showMethodologyModal, setShowMethodologyModal] = useState(false);
 
   useEffect(() => {
     getUserAnswersCount().then(setUserCount);
@@ -15,6 +19,100 @@ export default function Home() {
 
   const handleStartQuestionnaire = () => {
     router.push('/preguntas');
+  };
+
+  // Definición de dimensiones con explicaciones detalladas
+  const dimensions = {
+    CT: {
+      name: "Competencia Técnica",
+      color: "indigo",
+      bgColor: "#1a1a4a",
+      borderColor: "indigo-900/30",
+      shadowColor: "indigo-900/20",
+      textColor: "indigo-400",
+      description: "Experiencia profesional, conocimientos jurídicos especializados, y formación académica sólida",
+      details: [
+        "Años de experiencia en el sistema judicial",
+        "Especialización en áreas específicas del derecho",
+        "Formación académica y posgrados relevantes",
+        "Participación en casos complejos y precedentes",
+        "Experiencia internacional o nacional según el caso"
+      ]
+    },
+    IE: {
+      name: "Independencia y Ética",
+      color: "blue",
+      bgColor: "#1a2a4a",
+      borderColor: "blue-900/30",
+      shadowColor: "blue-900/20",
+      textColor: "blue-400",
+      description: "Resistencia a presiones políticas, integridad moral, transparencia en decisiones",
+      details: [
+        "Historial de decisiones independientes",
+        "Resistencia documentada a presiones externas",
+        "Transparencia en su patrimonio y conflictos de interés",
+        "Ética profesional y personal intachable",
+        "Compromiso con la imparcialidad judicial"
+      ]
+    },
+    EJ: {
+      name: "Enfoque Jurídico",
+      color: "cyan",
+      bgColor: "#1a3a4a",
+      borderColor: "cyan-900/30",
+      shadowColor: "cyan-900/20",
+      textColor: "cyan-400",
+      description: "Balance entre interpretación legal y aplicación estricta, adaptación a cambios sociales",
+      details: [
+        "Filosofía judicial: estricta vs. interpretativa",
+        "Adaptación a cambios sociales y tecnológicos",
+        "Consideración del contexto social en decisiones",
+        "Innovación en procedimientos judiciales",
+        "Balance entre tradición jurídica y modernidad"
+      ]
+    },
+    CR: {
+      name: "Capacidad Resolutiva",
+      color: "teal",
+      bgColor: "#1a4a4a",
+      borderColor: "teal-900/30",
+      shadowColor: "teal-900/20",
+      textColor: "teal-400",
+      description: "Eficiencia en la resolución de casos, calidad de sentencias, innovación procesal",
+      details: [
+        "Rapidez en la resolución de casos",
+        "Calidad y solidez de las sentencias",
+        "Innovación en procedimientos judiciales",
+        "Capacidad de mediación y resolución de conflictos",
+        "Claridad en el lenguaje jurídico utilizado"
+      ]
+    },
+    SS: {
+      name: "Sensibilidad Social",
+      color: "green",
+      bgColor: "#1a4a2a",
+      borderColor: "green-900/30",
+      shadowColor: "green-900/20",
+      textColor: "green-400",
+      description: "Experiencia en causas sociales, empatía con grupos vulnerables, perspectiva de inclusión",
+      details: [
+        "Experiencia en derechos humanos",
+        "Trabajo con grupos vulnerables",
+        "Perspectiva de género e inclusión",
+        "Sensibilidad hacia causas ambientales",
+        "Compromiso con la justicia social"
+      ]
+    }
+  };
+
+  const handleDimensionClick = (dimensionKey) => {
+    setSelectedDimension(dimensions[dimensionKey]);
+    setShowDimensionModal(true);
+  };
+
+  const closeDimensionModal = () => {
+    setShowDimensionModal(false);
+    setSelectedDimension(null);
   };
 
   return (
@@ -43,8 +141,8 @@ export default function Home() {
               ? `¡${userCount} ${userCount === 1 ? 'persona ha' : 'personas han'} contestado!`
               : 'Cargando...'}
           </div>
-          {/* Botón de enlace a TransparencIA.tech */}
-          <div className="flex justify-center mb-4">
+          {/* Botones de enlaces */}
+          <div className="flex justify-center gap-4 mb-4">
             <a
               href="https://www.transparencIA.tech"
               target="_blank"
@@ -53,6 +151,12 @@ export default function Home() {
             >
               Conoce nuestro trabajo
             </a>
+            <button
+              onClick={() => setShowMethodologyModal(true)}
+              className="px-4 py-2 bg-gray-700 text-white rounded-lg font-semibold shadow hover:bg-gray-600 transition"
+            >
+              ¿Cómo funciona?
+            </button>
           </div>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Responde una serie de preguntas políticas para encontrar candidatos judiciales 
@@ -99,34 +203,32 @@ export default function Home() {
         {/* Dimensions Heading */}
         <div className="text-center mb-8">
           <h3 className="text-xl font-bold text-white tracking-wide">El sistema se basa en 5 dimensiones clave:</h3>
+          <p className="text-sm text-gray-400 mt-2">Haz clic en cada dimensión para conocer más detalles</p>
         </div>
 
         {/* 5 Dimensions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
-          <div className="bg-[#1a1a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-indigo-900/20 transition-all border border-indigo-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-indigo-400">CT</div>
-            <div className="text-sm text-gray-400">Competencia Técnica</div>
-          </div>
-          
-          <div className="bg-[#1a2a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-blue-900/20 transition-all border border-blue-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-blue-400">IE</div>
-            <div className="text-sm text-gray-400">Independencia y Ética</div>
-          </div>
-          
-          <div className="bg-[#1a3a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-cyan-900/20 transition-all border border-cyan-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-cyan-400">EJ</div>
-            <div className="text-sm text-gray-400">Enfoque Jurídico</div>
-          </div>
-          
-          <div className="bg-[#1a4a4a] rounded-lg text-center py-3 shadow-lg hover:shadow-teal-900/20 transition-all border border-teal-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-teal-400">CR</div>
-            <div className="text-sm text-gray-400">Capacidad Resolutiva</div>
-          </div>
-          
-          <div className="bg-[#1a4a2a] rounded-lg text-center py-3 shadow-lg hover:shadow-green-900/20 transition-all border border-green-900/30 hover:-translate-y-1">
-            <div className="font-bold text-2xl text-green-400">SS</div>
-            <div className="text-sm text-gray-400">Sensibilidad Social</div>
-          </div>
+          {Object.entries(dimensions).map(([key, dimension]) => (
+            <div
+              key={key}
+              className={`rounded-lg text-center py-3 shadow-lg transition-all border hover:-translate-y-1 cursor-pointer group`}
+              style={{ 
+                backgroundColor: dimension.bgColor,
+                borderColor: `var(--${dimension.color}-900)`,
+              }}
+              onClick={() => handleDimensionClick(key)}
+            >
+              <div className={`font-bold text-2xl text-${dimension.color}-400 mb-1`}>
+                {key}
+              </div>
+              <div className="text-sm text-gray-400 px-2 group-hover:text-gray-300 transition-colors">
+                {dimension.name}
+              </div>
+              <div className="text-xs text-gray-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Clic para detalles
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* CTA Button */}
@@ -145,6 +247,55 @@ export default function Home() {
           </button>
         </div>
       </main>
+
+      {/* Modal de dimensiones */}
+      {showDimensionModal && selectedDimension && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`text-2xl font-bold text-${selectedDimension.color}-400`}>
+                {selectedDimension.name}
+              </h3>
+              <button
+                onClick={closeDimensionModal}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              {selectedDimension.description}
+            </p>
+            
+            <h4 className="text-lg font-semibold text-white mb-3">Esta dimensión evalúa:</h4>
+            <ul className="space-y-2">
+              {selectedDimension.details.map((detail, index) => (
+                <li key={index} className="flex items-start text-gray-300">
+                  <div className={`w-2 h-2 rounded-full bg-${selectedDimension.color}-400 mt-2 mr-3 flex-shrink-0`}></div>
+                  {detail}
+                </li>
+              ))}
+            </ul>
+            
+            <div className="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <p className="text-sm text-gray-400">
+                <strong className="text-white">¿Cómo se mide?</strong> Las personas candidatas son evaluadas 
+                por expertos usando inteligencia artificial que analiza sus CV, trayectoria profesional, 
+                casos relevantes y posturas públicas documentadas.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de metodología */}
+      <MethodologyModal 
+        isOpen={showMethodologyModal}
+        onClose={() => setShowMethodologyModal(false)}
+      />
     </div>
   );
 } 

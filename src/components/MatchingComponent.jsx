@@ -211,7 +211,7 @@ const MatchingComponent = () => {
       
       <div className="mb-8">
         <p className="mb-4">
-          Responde las siguientes preguntas para encontrar los candidatos a jueces que
+          Responde las siguientes preguntas para encontrar los candidatos judiciales que
           mejor se alinean con tus preferencias.
         </p>
         

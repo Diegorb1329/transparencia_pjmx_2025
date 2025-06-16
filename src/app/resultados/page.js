@@ -778,7 +778,7 @@ export default function ResultadosPage() {
           {!filters.estado ? (
             <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-800/40 text-center my-8">
               <p className="text-gray-300 mb-4">
-                Para ver candidaturas locales (Juezas/es de Distrito), selecciona un estado en los filtros superiores.
+                Para ver candidaturas locales (Personas Juzgadoras de Distrito), selecciona un estado en los filtros superiores.
               </p>
               <p className="text-sm text-gray-400">
                 Las candidaturas federales (Magistraturas y Ministros) se muestran automáticamente sin necesidad de seleccionar estado, ya que aplican a todo el país.

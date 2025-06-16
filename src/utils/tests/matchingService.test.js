@@ -13,7 +13,7 @@ jest.mock('../userScoreCalculator', () => ({
 
 jest.mock('../similarityCalculator', () => ({
   findSimilarCandidates: jest.fn(() => [
-    { id: 1, folio: 'ABC123', nombre: 'Candidato 1', similarity: 0.85, nombreCorto: 'Juez' },
+    { id: 1, folio: 'ABC123', nombre: 'Candidato 1', similarity: 0.85, nombreCorto: 'Persona Juzgadora' },
     { id: 2, folio: 'DEF456', nombre: 'Candidato 2', similarity: 0.75, nombreCorto: 'Magistrado' }
   ])
 }));

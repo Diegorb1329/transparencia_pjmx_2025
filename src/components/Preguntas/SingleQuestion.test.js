@@ -7,7 +7,7 @@ const mockQuestion = {
   id: 1,
   dimension: "CT",
   type: "single",
-  text: "¿Prefieres jueces con experiencia internacional frente a jueces cuya experiencia es exclusivamente nacional?",
+  text: "¿Prefieres personas juzgadoras con experiencia internacional frente a personas juzgadoras cuya experiencia es exclusivamente nacional?",
   options: [
     { text: "Prefiero exclusivamente experiencia nacional", affinity: "CT" },
     { text: "Prefiero principalmente experiencia nacional", affinity: "CT" },

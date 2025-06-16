@@ -1,0 +1,148 @@
+CT 1 (P1
+Competencia Técnica
+IE 1 (P2
+Independencia y Ética
+EJ 2 (P3, P13
+Enfoque Jurídico
+CR 3 (P4, P9, P12
+Capacidad Resolutiva
+SS 3 (P5, P10,P11
+Sensibilidad Social Preguntas
+
+Sintaxis
+¿Prefieres personas juzgadoras con experiencia internacional frente a personas juzgadoras cuya experiencia es exclusivamente nacional? ¿Cuál es tu preferencia sobre la experiencia de las personas juzgadoras?
+
+¿Qué tan importante es para ti que una persona juzgadora mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?
+
+¿Prefieres personas juzgadoras que apliquen la ley de manera estricta o que interpreten la ley considerando el contexto social? ¿Prefieres personas juzgadoras que apliquen la ley de manera estricta o que interpreten la ley considerando el contexto según el caso?
+
+¿Qué tan relevante es la rapidez en la resolución de casos frente al riesgo de perder calidad en las sentencias?
+
+¿Qué tan importante es para ti que una persona juzgadora tenga experiencia en causas sociales (por ejemplo, derechos humanos, igualdad de género, inclusión)? ¿Qué tan importante es para ti que una persona juzgadora tenga experiencia en causas sociales (por ejemplo, derechos humanos, igualdad de género e inclusión)?
+
+¿Qué prefieres sacrificar en una persona juzgadora? ¿Cuál de las siguientes situaciones prefieres en un persona juzgadora? /  Si tuvieras que aceptar una debilidad en una persona juzgadora cambio de una fortaleza, ¿qué preferirías? / Si tuvieras que elegir entre dos características en una persona juzgadora, ¿cuál te parecería más importante?
+
+Ordena por importancia las dimensiones en las que debería enfocarse una persona juzgadora
+
+¿Cuál de las siguientes dimensiones te parece menos relevante en una persona juzgadora?
+
+¿Qué aspecto de la eficiencia judicial consideras más importante?
+
+¿En qué temas consideras más importante la especialización de una persona juzgadora? ¿En qué temas consideras más importante la experiencia de una persona juzgadora?
+
+¿Qué tipo de causas sociales te gustaría que una persona juzgadora apoye activamente?
+
+¿Qué habilidad consideras más importante para resolver casos complejos?
+
+¿Qué tan importante es para ti que una persona juzgadora se adapte a cambios sociales y tecnológicos?
+
+Si tuvieras que sacrificar una de estas cualidades en una persona juzgadora, ¿cuál sería la menos importante para ti?
+
+¿Cuál de estas dos cualidades preferirías sacrificar en una persona juzgadora si tuvieras que elegir? /¿Cuál de las siguientes situaciones prefieres en un persona juzgadora? /  Si tuvieras que aceptar una debilidad en una persona juzgadora cambio de una fortaleza, ¿qué preferirías?
+
+
+Observaciones
+Poder ver que significa cada dimensión desde la página inicial
+
+Cambiar toda la palabra juez por persona juzgadora 
+
+P7 Poder ver significado de cada dimensión 
+
+P8 Redundante con la P7
+
+P14 redundante P7 y P8
+
+En la página de tu Match Judicial subir este recuadro al Filtro de resultados
+
+ 
+
+
+
+
+
+
+
+
+
+Preguntas
+
+P1. ¿Cómo se midió la experiencia internacional?
+
+P2. ¿Cómo mediste la independencia a presiones políticas en cada candidato?
+
+P3 ¿Cómo mediste la aplicación o no estricta de la ley en cada candidato?
+
+P4 ¿Cómo perfilaste las respuestas a cada candidato?
+	
+Prefiero máxima rapidez, aunque se pierda algo de calidad
+Prefiero rapidez, pero con calidad aceptable
+Equilibrio entre rapidez y calidad
+Prefiero calidad, aunque tome más tiempo
+Prefiero máxima calidad, aunque los casos tarden mucho
+
+P5 ¿Por qué se eligió causas sociales?
+
+P6 ¿Qué es dimensión “Trade Off”
+	¿Cómo se midió la sensibilidad a causas sociales?
+
+P7 ¿Cómo se midió cada categoría en cada candidato?
+
+P8 ¿Qué es la dimensión “FILTRO”?
+
+P9 ¿Cómo se midió cada categoría en cada candidato?
+	Rapidez en la resolución de casos
+Calidad y solidez de las sentencias
+Accesibilidad y claridad del lenguaje jurídico
+Innovación en procedimientos judiciales
+
+P10 ¿Cómo se midió cada tema en cada candidato?
+
+Derechos humanos y protección de grupos vulnerables
+Combate a la corrupción y delitos de cuello blanco
+Seguridad pública y combate al crimen organizado
+Derecho constitucional y protección de garantías
+
+P11 ¿Cómo se midió el apoyo de cada candidato a cada causa?
+
+Igualdad de género
+Inclusión de personas con discapacidad
+Protección ambiental
+Combate a la corrupción
+No tengo preferencia
+
+P12 ¿Cómo se midió cada categoría en cada candidato?
+
+Capacidad de mediación
+Análisis jurídico profundo
+Empatía con las partes involucradas
+Rigurosidad en la aplicación de la ley
+Creatividad en la interpretación jurídica
+
+P13 ¿Cómo mediste cada categoría en cada candidato?
+
+Es fundamental para la justicia moderna
+Es importante pero no indispensable
+Prefiero jueces tradicionales y conservadores
+No tengo preferencia
+Depende del contexto
+
+P14 ¿Qué es la dimensión “SACRIFICIO”
+
+P15 ¿Qué es la dimensión “SACRIFICIO2”
+
+¿Cómo se pondero si no hay el mismo número de preguntas de cada dimensión?
+
+¿Cómo se midió cada dimensión en cada candidato?
+	
+
+
+
+Ideas
+Pregunta relacionada con los años de experiencia
+
+
+¿Cómo recopilas la información de x actor político?
+
+
+
+

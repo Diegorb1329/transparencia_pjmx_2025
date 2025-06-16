@@ -3,7 +3,7 @@
     "id": 1,
     "dimension": "CT",
     "type": "single",
-    "text": "¿Prefieres jueces con experiencia internacional frente a jueces cuya experiencia es exclusivamente nacional?",
+    "text": "¿Prefieres personas juzgadoras con experiencia internacional frente a personas juzgadoras cuya experiencia es exclusivamente nacional?",
     "options": [
       {"text": "Prefiero exclusivamente experiencia nacional", "affinity": "CT"},
       {"text": "Prefiero principalmente experiencia nacional", "affinity": "CT"},
@@ -16,7 +16,7 @@
     "id": 2,
     "dimension": "IE",
     "type": "single",
-    "text": "¿Qué tan importante es para ti que un juez mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?",
+    "text": "¿Qué tan importante es para ti que una persona juzgadora mantenga independencia absoluta frente a presiones políticas, incluso si eso retrasa la toma de decisiones?",
     "options": [
       {"text": "Nada importante", "affinity": "IE"},
       {"text": "Poco importante", "affinity": "IE"},
@@ -29,7 +29,7 @@
     "id": 3,
     "dimension": "EJ",
     "type": "single",
-    "text": "¿Prefieres jueces que apliquen la ley de manera estricta o que interpreten la ley considerando el contexto social?",
+    "text": "¿Prefieres personas juzgadoras que apliquen la ley de manera estricta o que interpreten la ley considerando el contexto social?",
     "options": [
       {"text": "Solo aplicación estricta de la ley", "affinity": "EJ"},
       {"text": "Más aplicación estricta que interpretación", "affinity": "EJ"},
@@ -55,7 +55,7 @@
     "id": 5,
     "dimension": "SS",
     "type": "single",
-    "text": "¿Qué tan importante es para ti que un juez tenga experiencia en causas sociales (por ejemplo, derechos humanos, igualdad de género, inclusión)?",
+    "text": "¿Qué tan importante es para ti que una persona juzgadora tenga experiencia en causas sociales (por ejemplo, derechos humanos, igualdad de género, inclusión)?",
     "options": [
       {"text": "Nada importante", "affinity": "SS"},
       {"text": "Poco importante", "affinity": "SS"},
@@ -68,7 +68,7 @@
     "id": 6,
     "dimension": "TRADEOFF",
     "type": "single",
-    "text": "¿Qué prefieres sacrificar en un juez?",
+    "text": "¿Qué prefieres sacrificar en una persona juzgadora?",
     "options": [
       {"text": "Que sea menos sensible a causas sociales, pero muy eficiente", "affinity": "CR"},
       {"text": "Que sea menos eficiente, pero muy sensible a causas sociales", "affinity": "SS"}
@@ -78,7 +78,7 @@
     "id": 7,
     "dimension": "RANKING",
     "type": "ranking",
-    "text": "Ordena por importancia las dimensiones en las que debería enfocarse un juez",
+    "text": "Ordena por importancia las dimensiones en las que debería enfocarse una persona juzgadora",
     "options": [
       {"text": "Competencia técnica", "affinity": "CT"},
       {"text": "Independencia y ética", "affinity": "IE"},
@@ -91,7 +91,7 @@
     "id": 8,
     "dimension": "FILTRO",
     "type": "single",
-    "text": "¿Cuál de las siguientes dimensiones te parece menos relevante en un juez?",
+    "text": "¿Cuál de las siguientes dimensiones te parece menos relevante en una persona juzgadora?",
     "options": [
       {"text": "Competencia técnica", "affinity": "CT"},
       {"text": "Independencia y ética", "affinity": "IE"},
@@ -116,7 +116,7 @@
     "id": 10,
     "dimension": "SS",
     "type": "single",
-    "text": "¿En qué temas consideras más importante la especialización de un juez?",
+    "text": "¿En qué temas consideras más importante la especialización de una persona juzgadora?",
     "options": [
       {"text": "Derechos humanos y protección de grupos vulnerables", "affinity": "SS"},
       {"text": "Combate a la corrupción y delitos de cuello blanco", "affinity": "IE"},
@@ -128,7 +128,7 @@
     "id": 11,
     "dimension": "SS",
     "type": "single",
-    "text": "¿Qué tipo de causas sociales te gustaría que el juez apoye activamente?",
+    "text": "¿Qué tipo de causas sociales te gustaría que la persona juzgadora apoye activamente?",
     "options": [
       {"text": "Igualdad de género", "affinity": "SS"},
       {"text": "Inclusión de personas con discapacidad", "affinity": "SS"},
@@ -154,11 +154,11 @@
     "id": 13,
     "dimension": "EJ",
     "type": "single",
-    "text": "¿Qué tan importante es para ti que el juez se adapte a cambios sociales y tecnológicos?",
+    "text": "¿Qué tan importante es para ti que la persona juzgadora se adapte a cambios sociales y tecnológicos?",
     "options": [
       {"text": "Es fundamental para la justicia moderna", "affinity": "EJ"},
       {"text": "Es importante pero no indispensable", "affinity": "EJ"},
-      {"text": "Prefiero jueces tradicionales y conservadores", "affinity": "CR"},
+      {"text": "Prefiero personas juzgadoras tradicionales y conservadoras", "affinity": "CR"},
       {"text": "No tengo preferencia", "affinity": null},
       {"text": "Depende del contexto", "affinity": "EJ"}
     ]
@@ -167,7 +167,7 @@
     "id": 14,
     "dimension": "SACRIFICIO",
     "type": "single",
-    "text": "Si tuvieras que sacrificar una de estas cualidades en un juez, ¿cuál sería la menos importante para ti?",
+    "text": "Si tuvieras que sacrificar una de estas cualidades en una persona juzgadora, ¿cuál sería la menos importante para ti?",
     "options": [
       {"text": "Competencia técnica", "affinity": "CT"},
       {"text": "Independencia y ética", "affinity": "IE"},
@@ -180,7 +180,7 @@
     "id": 15,
     "dimension": "SACRIFICIO2",
     "type": "single",
-    "text": "¿Cuál de estas dos cualidades preferirías sacrificar en un juez si tuvieras que elegir?",
+    "text": "¿Cuál de estas dos cualidades preferirías sacrificar en una persona juzgadora si tuvieras que elegir?",
     "options": [
       {"text": "Sacrificaría la independencia y ética para ganar en competencia técnica", "affinity": "IE"},
       {"text": "Sacrificaría la competencia técnica para ganar en independencia y ética", "affinity": "CT"}
