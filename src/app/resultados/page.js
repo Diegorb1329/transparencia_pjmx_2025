@@ -73,10 +73,10 @@ export default function ResultadosPage() {
   const [detailCandidate, setDetailCandidate] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   
-  // Filtros
+  // Filtros con valores preseleccionados
   const [filters, setFilters] = useState({
-    candidatura: '',
-    estado: '',
+    candidatura: 'Ministra/o Suprema Corte de Justicia de la Nación',
+    estado: 'México',
     distrito: ''
   });
   
@@ -314,8 +314,8 @@ export default function ResultadosPage() {
   // Limpiar filtros
   const clearFilters = () => {
     setFilters({
-      candidatura: '',
-      estado: '',
+      candidatura: 'Ministra/o Suprema Corte de Justicia de la Nación',
+      estado: 'México',
       distrito: ''
     });
   };
@@ -597,34 +597,12 @@ export default function ResultadosPage() {
                 className="block w-full p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Todas las candidaturas</option>
-                {/* Primero mostrar opciones locales */}
-                <optgroup label="Candidaturas Locales (requieren estado)">
-                  {filterOptions.candidaturas
-                    .filter(c => ![
-                                  "Magistratura Sala Superior del TE del PJF",
-                                  "Magistratura Salas Regionales del TE del PJF",
-                                  "Magistratura Tribunal de Disciplina Judicial",
-                                  "Ministra/o Suprema Corte de Justicia de la Nación"].includes(c))
-                    .map((candidatura) => (
-                      <option key={candidatura} value={candidatura}>
-                        {candidatura}
-                      </option>
-                    ))}
-                </optgroup>
-                {/* Luego mostrar opciones federales */}
-                <optgroup label="Candidaturas Federales (en todo el país)">
-                  {filterOptions.candidaturas
-                    .filter(c => [
-                                 "Magistratura Sala Superior del TE del PJF",
-                                 "Magistratura Salas Regionales del TE del PJF",
-                                 "Magistratura Tribunal de Disciplina Judicial",
-                                 "Ministra/o Suprema Corte de Justicia de la Nación"].includes(c))
-                    .map((candidatura) => (
-                      <option key={candidatura} value={candidatura}>
-                        {candidatura}
-                      </option>
-                    ))}
-                </optgroup>
+                {filterOptions.candidaturas
+                  .map((candidatura) => (
+                    <option key={candidatura} value={candidatura}>
+                      {candidatura}
+                    </option>
+                  ))}
               </select>
             </div>
             
@@ -677,7 +655,7 @@ export default function ResultadosPage() {
               onClick={clearFilters}
               className="px-4 py-2 bg-gray-800 text-gray-300 rounded-md hover:bg-gray-700 transition-all"
             >
-              Limpiar filtros
+              Restablecer filtros
             </button>
             
             <div className="text-gray-400 text-sm">
